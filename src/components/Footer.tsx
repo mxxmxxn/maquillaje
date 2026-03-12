@@ -1,12 +1,20 @@
 import { Heart, Instagram, MessageCircle, Music2 } from 'lucide-react'
+import { useNavigate } from 'react-router-dom'
 import MagneticButton from '@/components/effects/MagneticButton'
 
 export default function Footer() {
+  const navigate = useNavigate()
+
   return (
     <footer className="section-padding bg-foreground text-white">
       <div className="container grid gap-10 md:grid-cols-3">
         <div>
-          <p className="mb-2 text-2xl font-semibold">Maquillaje Pro</p>
+          <button
+            onClick={() => navigate('/admin')}
+            className="mb-2 text-2xl font-semibold hover:text-[hsl(var(--primary))] transition-colors cursor-pointer"
+          >
+            Maquillaje Pro
+          </button>
           <p className="text-sm text-white/70">Belleza editorial y social con enfoque personalizado.</p>
         </div>
 
