@@ -12,8 +12,11 @@ type AboutState = {
   paragraph_2: string
   paragraph_3: string
   stat_1_number: number
+  stat_1_label: string
   stat_2_number: number
+  stat_2_label: string
   stat_3_number: number
+  stat_3_label: string
 }
 
 const initial: AboutState = {
@@ -22,8 +25,11 @@ const initial: AboutState = {
   paragraph_2: '',
   paragraph_3: '',
   stat_1_number: 0,
+  stat_1_label: '',
   stat_2_number: 0,
+  stat_2_label: '',
   stat_3_number: 0,
+  stat_3_label: '',
 }
 
 export default function AdminAbout() {
@@ -57,9 +63,16 @@ export default function AdminAbout() {
       <Textarea value={form.paragraph_2} onChange={(e) => setForm({ ...form, paragraph_2: e.target.value })} placeholder="Descripción adicional" />
       <Textarea value={form.paragraph_3} onChange={(e) => setForm({ ...form, paragraph_3: e.target.value })} placeholder="Descripción adicional 2" />
       <div className="grid gap-3">
-        <Input type="number" value={form.stat_1_number} onChange={(e) => setForm({ ...form, stat_1_number: Number(e.target.value) })} placeholder="Clientes felices" />
-        <Input type="number" value={form.stat_2_number} onChange={(e) => setForm({ ...form, stat_2_number: Number(e.target.value) })} placeholder="Años de experiencia" />
-        <Input type="number" value={form.stat_3_number} onChange={(e) => setForm({ ...form, stat_3_number: Number(e.target.value) })} placeholder="Certificaciones" />
+        <Input type="number" value={form.stat_1_number} onChange={(e) => setForm({ ...form, stat_1_number: Number(e.target.value) })} placeholder="Numero" />
+        <Input value={form.stat_1_label} onChange={(e) => setForm({ ...form, stat_1_label: e.target.value })} placeholder="Ej: Clientes felices" />
+      </div>
+      <div className="grid gap-3">
+        <Input type="number" value={form.stat_2_number} onChange={(e) => setForm({ ...form, stat_2_number: Number(e.target.value) })} placeholder="Numero" />
+        <Input value={form.stat_2_label} onChange={(e) => setForm({ ...form, stat_2_label: e.target.value })} placeholder="Ej: Años de experiencia" />
+      </div>
+      <div className="grid gap-3">
+        <Input type="number" value={form.stat_3_number} onChange={(e) => setForm({ ...form, stat_3_number: Number(e.target.value) })} placeholder="Numero" />
+        <Input value={form.stat_3_label} onChange={(e) => setForm({ ...form, stat_3_label: e.target.value })} placeholder="Ej: Certificaciones" />
       </div>
       <Button type="submit" variant="pink">Guardar cambios</Button>
     </form>
