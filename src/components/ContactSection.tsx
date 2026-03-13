@@ -1,10 +1,11 @@
 import { useEffect, useState } from 'react'
 import { Instagram, MessageCircle, Send } from 'lucide-react'
 import type { FormEvent } from 'react'
-import { motion } from 'framer-motion'
 import { supabase } from '@/integrations/supabase/client'
+import FloatingCard from '@/components/effects/FloatingCard'
 import MagneticButton from '@/components/effects/MagneticButton'
 import ScrollReveal from '@/components/effects/ScrollReveal'
+import SmoothReveal from '@/components/effects/SmoothReveal'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { toast } from '@/hooks/use-toast'
@@ -77,25 +78,21 @@ export default function ContactSection() {
           </div>
         </ScrollReveal>
 
-        <motion.form
-          onSubmit={onSubmit}
-          initial={{ opacity: 0, y: 24 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: '-90px' }}
-          transition={{ duration: 0.65 }}
-          whileHover={{ y: -4 }}
-          className="glass-card space-y-4 p-6 shadow-elevated"
-        >
-          <Input placeholder="Nombre" name="nombre" required />
-          <Input type="email" placeholder="Email" name="email" required />
-          <Textarea placeholder="Mensaje" name="mensaje" required />
-          <div className="flex flex-wrap gap-3">
-            <MagneticButton type="submit" className="inline-flex items-center gap-2 rounded-full bg-accent px-6 py-3 text-white">
-              Enviar <Send className="h-4 w-4" />
-            </MagneticButton>
-            <a href={`https://wa.me/${contact.whatsapp_number}`} className="rounded-full bg-green-500 px-6 py-3 font-medium text-white transition hover:scale-[1.03]">WhatsApp</a>
-          </div>
-        </motion.form>
+        <SmoothReveal delay={0.1}>
+          <FloatingCard className="relative">
+            <form onSubmit={onSubmit} className="glass-card space-y-5 p-8 shadow-elevated md:p-10">
+              <Input placeholder="Nombre" name="nombre" required />
+              <Input type="email" placeholder="Email" name="email" required />
+              <Textarea placeholder="Mensaje" name="mensaje" required />
+              <div className="flex flex-wrap gap-3">
+                <MagneticButton type="submit" className="inline-flex items-center gap-2 rounded-full bg-accent px-6 py-3 text-white">
+                  Enviar <Send className="h-4 w-4" />
+                </MagneticButton>
+                <a href={`https://wa.me/${contact.whatsapp_number}`} className="rounded-full bg-green-500 px-6 py-3 font-medium text-white transition hover:scale-[1.03]">WhatsApp</a>
+              </div>
+            </form>
+          </FloatingCard>
+        </SmoothReveal>
       </div>
     </section>
   )

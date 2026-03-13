@@ -1,5 +1,12 @@
 import type { PropsWithChildren } from 'react'
-import { motion, useMotionTemplate, useMotionValue, useSpring } from 'framer-motion'
+import { useRef } from 'react'
+import {
+  motion,
+  useMotionTemplate,
+  useMotionValue,
+  useSpring,
+  useTransform,
+} from 'framer-motion'
 import { cn } from '@/lib/utils'
 
 type FloatingCardProps = PropsWithChildren<{
@@ -7,36 +14,48 @@ type FloatingCardProps = PropsWithChildren<{
 }>
 
 export default function FloatingCard({ children, className }: FloatingCardProps) {
-  const rotateXRaw = useMotionValue(0)
-  const rotateYRaw = useMotionValue(0)
-  const glareXRaw = useMotionValue(50)
-  const glareYRaw = useMotionValue(50)
+  const ref = useRef<HTMLDivElement | null>(null)
+  const x = useMotionValue(0.5)
+  const y = useMotionValue(0.5)
 
-  const rotateX = useSpring(rotateXRaw, { damping: 20, stiffness: 200 })
-  const rotateY = useSpring(rotateYRaw, { damping: 20, stiffness: 200 })
-  const glareX = useSpring(glareXRaw, { damping: 20, stiffness: 200 })
-  const glareY = useSpring(glareYRaw, { damping: 20, stiffness: 200 })
+  const rotateXTarget = useTransform(y, [0, 1], [8, -8])
+  const rotateYTarget = useTransform(x, [0, 1], [-8, 8])
+  const glareXTarget = useTransform(x, (value) => value * 100)
+  const glareYTarget = useTransform(y, (value) => value * 100)
 
-  const glare = useMotionTemplate`radial-gradient(circle at ${glareX}% ${glareY}%, rgba(255,255,255,0.45), rgba(255,255,255,0) 55%)`
+  const rotateX = useSpring(rotateXTarget, { damping: 20, stiffness: 200 })
+  const rotateY = useSpring(rotateYTarget, { damping: 20, stiffness: 200 })
+  const glareX = useSpring(glareXTarget, { damping: 20, stiffness: 200 })
+  const glareY = useSpring(glareYTarget, { damping: 20, stiffness: 200 })
+
+  const glare = useMotionTemplate`radial-gradient(circle at ${glareX}% ${glareY}%, hsl(340 72% 87% / 0.15), transparent 60%)`
 
   return (
     <motion.div
+      ref={ref}
       onMouseMove={(event) => {
-        const rect = event.currentTarget.getBoundingClientRect()
-        const x = (event.clientX - rect.left) / rect.width
-        const y = (event.clientY - rect.top) / rect.height
-        rotateYRaw.set((x - 0.5) * 16)
-        rotateXRaw.set((0.5 - y) * 16)
-        glareXRaw.set(x * 100)
-        glareYRaw.set(y * 100)
+        const rect = ref.current?.getBoundingClientRect()
+        if (!rect) return
+
+        const nextX = (event.clientX - rect.left) / rect.width
+        const nextY = (event.clientY - rect.top) / rect.height
+        const clampedX = Math.max(0, Math.min(1, nextX))
+        const clampedY = Math.max(0, Math.min(1, nextY))
+
+        // Cursor normalized coordinates drive spring-physics tilt + glare.
+        x.set(clampedX)
+        y.set(clampedY)
       }}
       onMouseLeave={() => {
-        rotateXRaw.set(0)
-        rotateYRaw.set(0)
-        glareXRaw.set(50)
-        glareYRaw.set(50)
+        x.set(0.5)
+        y.set(0.5)
       }}
-      style={{ rotateX, rotateY, transformStyle: 'preserve-3d' }}
+      style={{
+        rotateX,
+        rotateY,
+        transformPerspective: 800,
+        transformStyle: 'preserve-3d',
+      }}
       whileHover={{ scale: 1.03 }}
       transition={{ type: 'spring', damping: 20, stiffness: 200 }}
       className={cn('relative overflow-hidden rounded-2xl', className)}
@@ -46,3 +65,4 @@ export default function FloatingCard({ children, className }: FloatingCardProps)
     </motion.div>
   )
 }
+        // eslint-disable-next-line no-shadow
