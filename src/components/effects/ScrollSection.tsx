@@ -1,5 +1,5 @@
 import type { PropsWithChildren } from 'react'
-import { motion, useInView, useSpring } from 'framer-motion'
+import { motion, useInView, useSpring, useTransform } from 'framer-motion'
 import { useEffect, useRef } from 'react'
 import { cn } from '@/lib/utils'
 
@@ -21,6 +21,7 @@ export default function ScrollSection({
   const ySpring = useSpring(200 * intensity, { damping: 30, stiffness: 80 })
   const opacitySpring = useSpring(0, { damping: 30, stiffness: 80 })
   const blurSpring = useSpring(12 * intensity, { damping: 30, stiffness: 80 })
+  const blurFilter = useTransform(blurSpring, (value: number) => `blur(${value}px)`)
 
   useEffect(() => {
     if (effect !== 'curtain') return
@@ -41,7 +42,7 @@ export default function ScrollSection({
       style={{
         y: ySpring,
         opacity: opacitySpring,
-        filter: blurSpring.to((value) => `blur(${value}px)`),
+        filter: blurFilter,
       }}
       className={cn(className)}
     >
