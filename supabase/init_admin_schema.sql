@@ -40,7 +40,6 @@ create table if not exists public.hero_settings (
   id text primary key,
   title text not null default '',
   subtitle text not null default '',
-  tagline text not null default '',
   hero_image_url text not null default '',
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
@@ -51,13 +50,22 @@ create table if not exists public.about_content (
   paragraph_1 text not null default '',
   paragraph_2 text not null default '',
   paragraph_3 text not null default '',
-  photo_url text not null default '',
   stat_1_number integer not null default 0,
   stat_1_label text not null default '',
   stat_2_number integer not null default 0,
   stat_2_label text not null default '',
   stat_3_number integer not null default 0,
   stat_3_label text not null default '',
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+create table if not exists public.contact_info (
+  id text primary key,
+  description text not null default '',
+  instagram_url text not null default '',
+  whatsapp_number text not null default '',
+  email text not null default '',
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
@@ -72,12 +80,20 @@ create table if not exists public.gallery_items (
   updated_at timestamptz not null default now()
 );
 
+create table if not exists public.service_categories (
+  id uuid primary key default gen_random_uuid(),
+  name text not null unique,
+  sort_order integer not null default 0,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
 create table if not exists public.services (
   id uuid primary key default gen_random_uuid(),
-  name text not null,
-  description text not null,
-  price text not null,
   icon text not null default 'Sparkles',
+  name text not null,
+  category_id uuid references public.service_categories(id),
+  price text not null,
   sort_order integer not null default 0,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
@@ -88,7 +104,7 @@ create table if not exists public.testimonials (
   name text not null,
   text text not null,
   rating integer not null default 5 check (rating between 1 and 5),
-  service text not null,
+  category text not null,
   photo_url text not null default '',
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
@@ -107,9 +123,19 @@ create trigger set_updated_at_about
 before update on public.about_content
 for each row execute function public.set_updated_at();
 
+drop trigger if exists set_updated_at_contact on public.contact_info;
+create trigger set_updated_at_contact
+before update on public.contact_info
+for each row execute function public.set_updated_at();
+
 drop trigger if exists set_updated_at_gallery on public.gallery_items;
 create trigger set_updated_at_gallery
 before update on public.gallery_items
+for each row execute function public.set_updated_at();
+
+drop trigger if exists set_updated_at_categories on public.service_categories;
+create trigger set_updated_at_categories
+before update on public.service_categories
 for each row execute function public.set_updated_at();
 
 drop trigger if exists set_updated_at_services on public.services;
@@ -124,7 +150,9 @@ for each row execute function public.set_updated_at();
 
 alter table public.hero_settings enable row level security;
 alter table public.about_content enable row level security;
+alter table public.contact_info enable row level security;
 alter table public.gallery_items enable row level security;
+alter table public.service_categories enable row level security;
 alter table public.services enable row level security;
 alter table public.testimonials enable row level security;
 
@@ -145,9 +173,25 @@ to authenticated
 using (public.is_admin())
 with check (public.is_admin());
 
+drop policy if exists "admin can manage contact" on public.contact_info;
+create policy "admin can manage contact"
+on public.contact_info
+for all
+to authenticated
+using (public.is_admin())
+with check (public.is_admin());
+
 drop policy if exists "admin can manage gallery" on public.gallery_items;
 create policy "admin can manage gallery"
 on public.gallery_items
+for all
+to authenticated
+using (public.is_admin())
+with check (public.is_admin());
+
+drop policy if exists "admin can manage categories" on public.service_categories;
+create policy "admin can manage categories"
+on public.service_categories
 for all
 to authenticated
 using (public.is_admin())

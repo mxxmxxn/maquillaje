@@ -36,5 +36,12 @@ for select
 to public
 using (true);
 
+drop policy if exists "public can read contact" on public.contact_info;
+create policy "public can read contact"
+on public.contact_info
+for select
+to public
+using (true);
+
 -- Verifica que los servicios son visibles
 select id, name, price, icon from public.services limit 5;
