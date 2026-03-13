@@ -1,6 +1,7 @@
 import { ExternalLink, LogOut } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import AdminAbout from '@/components/admin/AdminAbout'
+import AdminCategories from '@/components/admin/AdminCategories'
 import AdminGallery from '@/components/admin/AdminGallery'
 import AdminHero from '@/components/admin/AdminHero'
 import AdminServices from '@/components/admin/AdminServices'
@@ -43,10 +44,11 @@ export default function Admin() {
         </div>
 
         <Tabs defaultValue="hero">
-          <TabsList className="grid h-auto w-full grid-cols-2 gap-2 md:grid-cols-5">
+          <TabsList className="grid h-auto w-full grid-cols-2 gap-2 md:grid-cols-6">
             <TabsTrigger value="hero">Principal</TabsTrigger>
             <TabsTrigger value="about">Sobre mi</TabsTrigger>
             <TabsTrigger value="gallery">Galeria</TabsTrigger>
+            <TabsTrigger value="categories">Categorías</TabsTrigger>
             <TabsTrigger value="services">Servicios</TabsTrigger>
             <TabsTrigger value="testimonials">Testimonios</TabsTrigger>
           </TabsList>
@@ -55,6 +57,7 @@ export default function Admin() {
             <TabsContent value="hero"><AdminHero /></TabsContent>
             <TabsContent value="about"><AdminAbout /></TabsContent>
             <TabsContent value="gallery"><AdminGallery /></TabsContent>
+            <TabsContent value="categories"><AdminCategories /></TabsContent>
             <TabsContent value="services"><AdminServices /></TabsContent>
             <TabsContent value="testimonials"><AdminTestimonials /></TabsContent>
           </div>
