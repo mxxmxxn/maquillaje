@@ -10,7 +10,6 @@ type HeroState = {
   id: string
   title: string
   subtitle: string
-  tagline: string
   hero_image_url: string
 }
 
@@ -18,7 +17,6 @@ const initial: HeroState = {
   id: 'default',
   title: '',
   subtitle: '',
-  tagline: '',
   hero_image_url: '',
 }
 
@@ -50,9 +48,8 @@ export default function AdminHero() {
         <p className="text-sm text-muted-foreground">Aqui defines el texto e imagen del primer bloque de la home.</p>
       </div>
       <Input value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} placeholder="Titulo principal" />
-      <Input value={form.subtitle} onChange={(e) => setForm({ ...form, subtitle: e.target.value })} placeholder="Subtitulo" />
-      <Input value={form.tagline} onChange={(e) => setForm({ ...form, tagline: e.target.value })} placeholder="Frase corta destacada" />
-      <Input value={form.hero_image_url} onChange={(e) => setForm({ ...form, hero_image_url: e.target.value })} placeholder="URL de imagen de portada" />
+      <Input value={form.subtitle} onChange={(e) => setForm({ ...form, subtitle: e.target.value })} placeholder="Descripcion" />
+      <Input value={form.hero_image_url} onChange={(e) => setForm({ ...form, hero_image_url: e.target.value })} placeholder="URL de imagen de fondo" />
       <ImageUpload onUploaded={(url) => setForm({ ...form, hero_image_url: url })} />
       <Button type="submit" variant="pink">Guardar cambios</Button>
     </form>

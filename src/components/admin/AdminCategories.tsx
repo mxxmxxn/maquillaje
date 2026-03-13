@@ -9,11 +9,9 @@ import { toast } from '@/hooks/use-toast'
 type ServiceCategory = {
   id?: string
   name: string
-  color: string
-  sort_order: number
 }
 
-const initial: ServiceCategory = { name: '', color: '#FF69B4', sort_order: 0 }
+const initial: ServiceCategory = { name: '' }
 
 export default function AdminCategories() {
   const [items, setItems] = useState<ServiceCategory[]>([])
@@ -61,22 +59,6 @@ export default function AdminCategories() {
           onChange={(e) => setForm({ ...form, name: e.target.value })}
           placeholder="Nombre de la categoría"
         />
-        <div className="flex gap-2">
-          <Input
-            type="color"
-            value={form.color}
-            onChange={(e) => setForm({ ...form, color: e.target.value })}
-            placeholder="Color"
-            className="h-10 w-24"
-          />
-          <span className="text-sm text-muted-foreground pt-2">{form.color}</span>
-        </div>
-        <Input
-          type="number"
-          value={form.sort_order}
-          onChange={(e) => setForm({ ...form, sort_order: Number(e.target.value) })}
-          placeholder="Orden"
-        />
         <Button type="submit" variant="pink">
           Guardar categoría
         </Button>
@@ -96,13 +78,8 @@ export default function AdminCategories() {
             className="glass-card flex items-center justify-between p-4"
           >
             <div className="flex items-center gap-3">
-              <div
-                className="h-8 w-8 rounded-full border border-white/25"
-                style={{ backgroundColor: item.color }}
-              />
               <div>
                 <p className="font-semibold">{item.name}</p>
-                <p className="text-xs text-muted-foreground">Orden: {item.sort_order}</p>
               </div>
             </div>
             <Button

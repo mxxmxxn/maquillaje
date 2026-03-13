@@ -4,22 +4,35 @@ import { motion } from 'framer-motion'
 import { supabase } from '@/integrations/supabase/client'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { Textarea } from '@/components/ui/textarea'
 import { toast } from '@/hooks/use-toast'
+
+type ServiceCategory = {
+  id: string
+  name: string
+}
 
 type Service = {
   id?: string
+  icon: string
   name: string
-  description: string
+  category_id: string | null
   price: string
   sort_order: number
 }
 
-const initial: Service = { name: '', description: '', price: '', sort_order: 0 }
+const ICON_OPTIONS = ['Crown', 'Sparkles', 'Brush', 'Wand2', 'Star', 'Heart', 'Gem', 'Palette']
+
+const initial: Service = { icon: 'Sparkles', name: '', category_id: null, price: '', sort_order: 0 }
 
 export default function AdminServices() {
   const [items, setItems] = useState<Service[]>([])
+  const [categories, setCategories] = useState<ServiceCategory[]>([])
   const [form, setForm] = useState<Service>(initial)
+
+  const loadCategories = async () => {
+    const { data } = await supabase.from('service_categories').select('id, name').order('sort_order')
+    if (data) setCategories(data as ServiceCategory[])
+  }
 
   const load = async () => {
     const { data } = await supabase.from('services').select('*').order('sort_order')
@@ -27,11 +40,16 @@ export default function AdminServices() {
   }
 
   useEffect(() => {
+    loadCategories()
     load()
   }, [])
 
   const save = async (event: FormEvent) => {
     event.preventDefault()
+    if (!form.category_id) {
+      toast({ title: 'Error', description: 'Debes seleccionar una categoría' })
+      return
+    }
     const { error } = await supabase.from('services').upsert(form)
     if (error) return toast({ title: 'Error al guardar servicios', description: error.message })
     toast({ title: 'Servicio guardado' })
@@ -39,15 +57,37 @@ export default function AdminServices() {
     load()
   }
 
+  const getCategoryName = (categoryId: string | null) => {
+    return categories.find(c => c.id === categoryId)?.name || 'Sin categoría'
+  }
+
   return (
     <div className="space-y-6">
       <div>
         <h2 className="text-2xl font-semibold">Servicios</h2>
-        <p className="text-sm text-muted-foreground">Gestiona nombre, descripcion, categoría y precio de cada servicio.</p>
+        <p className="text-sm text-muted-foreground">Gestiona logo, categoría, tipo de servicio y precio.</p>
       </div>
       <form onSubmit={save} className="space-y-4">
-        <Input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} placeholder="Nombre" />
-        <Textarea value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} placeholder="Descripcion" />
+        <select
+          value={form.icon}
+          onChange={(e) => setForm({ ...form, icon: e.target.value })}
+          className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+        >
+          {ICON_OPTIONS.map(icon => (
+            <option key={icon} value={icon}>{icon}</option>
+          ))}
+        </select>
+        <select
+          value={form.category_id || ''}
+          onChange={(e) => setForm({ ...form, category_id: e.target.value || null })}
+          className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+        >
+          <option value="">Selecciona una categoría</option>
+          {categories.map(cat => (
+            <option key={cat.id} value={cat.id}>{cat.name}</option>
+          ))}
+        </select>
+        <Input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} placeholder="Tipo de servicio" />
         <Input value={form.price} onChange={(e) => setForm({ ...form, price: e.target.value })} placeholder="Precio" />
         <Button type="submit" variant="pink">Guardar servicio</Button>
       </form>
@@ -66,7 +106,7 @@ export default function AdminServices() {
               className="flex flex-col items-center justify-center rounded-full border border-white/24 bg-gradient-to-b from-white/10 to-white/5 p-4 text-center backdrop-blur-md"
             >
               <h4 className="text-sm font-semibold">{item.name}</h4>
-              <p className="text-xs text-muted-foreground">{item.description}</p>
+              <p className="text-xs text-muted-foreground mt-1">{getCategoryName(item.category_id)}</p>
               <p className="mt-2 text-sm font-semibold text-accent">{item.price}</p>
             </motion.div>
           ))}
