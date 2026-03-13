@@ -69,7 +69,6 @@ export default function AdminGallery() {
             <option key={cat.id} value={cat.name}>{cat.name}</option>
           ))}
         </select>
-        <Input value={form.image_url} onChange={(e) => setForm({ ...form, image_url: e.target.value })} placeholder="URL de imagen" />
         <ImageUpload onUploaded={(url) => setForm({ ...form, image_url: url })} />
         <Input type="number" value={form.sort_order} onChange={(e) => setForm({ ...form, sort_order: Number(e.target.value) })} placeholder="Orden" />
         <Button type="submit" variant="pink">Guardar item</Button>

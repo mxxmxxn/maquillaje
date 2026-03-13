@@ -72,7 +72,6 @@ export default function AdminTestimonials() {
             <option key={cat.id} value={cat.name}>{cat.name}</option>
           ))}
         </select>
-        <Input value={form.photo_url} onChange={(e) => setForm({ ...form, photo_url: e.target.value })} placeholder="URL de foto" />
         <ImageUpload onUploaded={(url) => setForm({ ...form, photo_url: url })} />
         <Button type="submit" variant="pink">Guardar testimonio</Button>
       </form>

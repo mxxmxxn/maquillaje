@@ -49,7 +49,6 @@ export default function AdminHero() {
       </div>
       <Input value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} placeholder="Titulo principal" />
       <Input value={form.subtitle} onChange={(e) => setForm({ ...form, subtitle: e.target.value })} placeholder="Descripcion" />
-      <Input value={form.hero_image_url} onChange={(e) => setForm({ ...form, hero_image_url: e.target.value })} placeholder="URL de imagen de fondo" />
       <ImageUpload onUploaded={(url) => setForm({ ...form, hero_image_url: url })} />
       <Button type="submit" variant="pink">Guardar cambios</Button>
     </form>
