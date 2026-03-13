@@ -1,5 +1,5 @@
-import { useEffect, useState } from 'react'
-import { motion, useMotionTemplate, useMotionValue } from 'framer-motion'
+import { useEffect, useRef, useState } from 'react'
+import { motion, useMotionTemplate, useMotionValue, useScroll, useSpring, useTransform } from 'framer-motion'
 import { supabase } from '@/integrations/supabase/client'
 import CountUp from '@/components/effects/CountUp'
 import ScrollReveal from '@/components/effects/ScrollReveal'
@@ -28,10 +28,20 @@ const defaultAbout: AboutData = {
 }
 
 export default function AboutSection() {
+  const sectionRef = useRef<HTMLElement | null>(null)
   const [about, setAbout] = useState<AboutData>(defaultAbout)
   const glowX = useMotionValue(30)
   const glowY = useMotionValue(20)
   const spotlight = useMotionTemplate`radial-gradient(420px circle at ${glowX}% ${glowY}%, rgba(244,191,210,0.22), transparent 62%)`
+  const { scrollYProgress } = useScroll({ target: sectionRef, offset: ['start 85%', 'end 20%'] })
+  const progress = useSpring(scrollYProgress, { damping: 26, stiffness: 120 })
+  const titleY = useTransform(progress, [0, 1], [56, -10])
+  const titleRotateX = useTransform(progress, [0, 1], [16, 0])
+  const titleScale = useTransform(progress, [0, 1], [0.92, 1.04])
+  const bodyY = useTransform(progress, [0, 1], [34, 0])
+  const bodyYSoft = useTransform(bodyY, (v) => v * 0.8)
+  const depthShadow = useTransform(progress, [0, 1], [0, 1])
+  const titleShadow = useMotionTemplate`0 ${depthShadow}px 0 rgba(177,95,132,0.34), 0 ${depthShadow}0px 30px rgba(177,95,132,0.24)`
 
   useEffect(() => {
     const load = async () => {
@@ -60,19 +70,24 @@ export default function AboutSection() {
   }
 
   return (
-    <section id="sobre-mi" onMouseMove={handleMove} className="section-padding relative overflow-hidden bg-white">
+    <section ref={sectionRef} id="sobre-mi" onMouseMove={handleMove} className="section-padding relative overflow-hidden bg-white [perspective:1000px]">
       <motion.div style={{ background: spotlight }} className="pointer-events-none absolute inset-0" />
       <div className="container grid items-center gap-12 lg:grid-cols-2">
         <SmoothReveal direction="left">
           <ScrollReveal>
-            <h2 className="section-title">Sobre mi</h2>
+            <motion.h2
+              style={{ y: titleY, rotateX: titleRotateX, scale: titleScale, textShadow: titleShadow }}
+              className="section-title will-change-transform"
+            >
+              Sobre mi
+            </motion.h2>
           </ScrollReveal>
-          <p className="mb-4 text-muted-foreground">
+          <motion.p style={{ y: bodyY }} className="mb-4 text-muted-foreground will-change-transform">
             {about.paragraph_1}
-          </p>
-          <p className="mb-6 text-muted-foreground">
+          </motion.p>
+          <motion.p style={{ y: bodyYSoft }} className="mb-6 text-muted-foreground will-change-transform">
             {about.paragraph_2}
-          </p>
+          </motion.p>
 
           <div className="grid gap-4 sm:grid-cols-3">
             {stats.map((item) => (
