@@ -8,7 +8,6 @@ import Navbar from '@/components/Navbar'
 import ServicesSection from '@/components/ServicesSection'
 import TestimonialsSection from '@/components/TestimonialsSection'
 import CustomCursor from '@/components/effects/CustomCursor'
-import ScrollSection from '@/components/effects/ScrollSection'
 
 export default function Index() {
   useEffect(() => {
@@ -26,9 +25,7 @@ export default function Index() {
         <GallerySection />
         <ServicesSection />
         <TestimonialsSection />
-        <ScrollSection effect="curtain" intensity={0.8}>
-          <ContactSection />
-        </ScrollSection>
+        <ContactSection />
       </main>
       <Footer />
     </div>

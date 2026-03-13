@@ -1,7 +1,28 @@
 import { useEffect, useRef, useState } from 'react'
 import { Brush, Crown, Sparkles, Wand2 } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
-import { motion, AnimatePresence, useMotionTemplate, useScroll, useSpring, useTransform } from 'framer-motion'
+import { motion, AnimatePresence } from 'framer-motion'
+
+const heartImage = new URL('../assets/Heartwhite.png', import.meta.url).href
+
+const heartPositions = [
+  { top: '10%', left: '8%', size: '280px', opacity: '65' },
+  { top: '65%', left: '5%', size: '220px', opacity: '62' },
+  { top: '20%', right: '10%', size: '240px', opacity: '68' },
+  { top: '70%', right: '8%', size: '200px', opacity: '64' },
+  { top: '35%', left: '3%', size: '180px', opacity: '60' },
+  { top: '50%', right: '15%', size: '260px', opacity: '66' },
+  { top: '15%', right: '25%', size: '200px', opacity: '63' },
+  { top: '75%', left: '45%', size: '240px', opacity: '61' },
+  { top: '40%', right: '5%', size: '200px', opacity: '64' },
+  { top: '25%', left: '25%', size: '240px', opacity: '62' },
+  { top: '55%', left: '15%', size: '220px', opacity: '65' },
+  { top: '80%', right: '35%', size: '180px', opacity: '60' },
+  { top: '30%', left: '55%', size: '260px', opacity: '63' },
+  { top: '60%', right: '40%', size: '200px', opacity: '66' },
+  { top: '5%', left: '35%', size: '220px', opacity: '61' },
+  { top: '85%', left: '65%', size: '240px', opacity: '64' },
+]
 import { supabase } from '@/integrations/supabase/client'
 import ScrollReveal from '@/components/effects/ScrollReveal'
 
@@ -59,15 +80,6 @@ const defaultServices: Service[] = [
 export default function ServicesSection() {
   const sectionRef = useRef<HTMLElement | null>(null)
   const [services, setServices] = useState<Service[]>(defaultServices)
-  const { scrollYProgress } = useScroll({ target: sectionRef, offset: ['start 88%', 'end 18%'] })
-  const progress = useSpring(scrollYProgress, { damping: 26, stiffness: 120 })
-  const titleY = useTransform(progress, [0, 1], [50, -8])
-  const titleRotateX = useTransform(progress, [0, 1], [14, 0])
-  const titleScale = useTransform(progress, [0, 1], [0.93, 1.03])
-  const titleDepth = useTransform(progress, [0, 1], [0, 1])
-  const titleShadow = useMotionTemplate`0 ${titleDepth}px 0 rgba(162,88,128,0.32), 0 ${titleDepth}0px 24px rgba(162,88,128,0.22)`
-  const textLift = useTransform(progress, [0, 1], [12, 0])
-  const textLiftSoft = useTransform(textLift, (v) => v * 0.7)
 
   useEffect(() => {
     const load = async () => {
@@ -85,16 +97,27 @@ export default function ServicesSection() {
 
   return (
     <section ref={sectionRef} id="servicios" className="section-padding relative overflow-hidden bg-gradient-light-pink animate-gradient-shift [perspective:1000px]">
-      <div className="pointer-events-none absolute -left-24 top-14 h-64 w-64 rounded-full bg-[radial-gradient(circle,rgba(200,120,160,0.12)_0%,rgba(200,120,160,0)_72%)] blur-3xl" />
-      <div className="pointer-events-none absolute -right-20 bottom-8 h-72 w-72 rounded-full bg-[radial-gradient(circle,rgba(180,100,140,0.10)_0%,rgba(180,100,140,0)_72%)] blur-3xl" />
+      <div className="pointer-events-none absolute -left-24 top-14 h-64 w-64 rounded-full bg-[radial-gradient(circle,rgba(200,120,160,0.06)_0%,rgba(200,120,160,0)_72%)] blur-3xl" />
+      <div className="pointer-events-none absolute -right-20 bottom-8 h-72 w-72 rounded-full bg-[radial-gradient(circle,rgba(180,100,140,0.04)_0%,rgba(180,100,140,0)_72%)] blur-3xl" />
+      {heartPositions.map((pos, idx) => (
+        <div
+          key={idx}
+          className="pointer-events-none absolute"
+          style={{
+            top: pos.top,
+            left: pos.left,
+            right: pos.right,
+            width: pos.size,
+            height: pos.size,
+            opacity: `${pos.opacity}%`,
+          }}
+        >
+          <img src={heartImage} alt="heart" className="h-full w-full object-contain" />
+        </div>
+      ))}
       <div className="container relative">
         <ScrollReveal>
-          <motion.h2
-            style={{ y: titleY, rotateX: titleRotateX, scale: titleScale, textShadow: titleShadow }}
-            className="section-title will-change-transform"
-          >
-            Servicios
-          </motion.h2>
+          <h2 className="section-title">Servicios</h2>
         </ScrollReveal>
 
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4 mt-12">
@@ -121,8 +144,8 @@ export default function ServicesSection() {
                     {IconComponent && <IconComponent className="mx-auto mb-4 h-8 w-8 text-foreground/70 transition group-hover:text-accent group-hover:scale-110" />}
                   </motion.div>
 
-                  <motion.h3 style={{ y: textLift }} className="relative z-10 text-lg font-semibold text-foreground [text-shadow:0_1px_0_rgba(120,61,90,0.2)]">{service.name}</motion.h3>
-                  <motion.p style={{ y: textLiftSoft }} className="relative z-10 mt-2 text-sm text-muted-foreground line-clamp-2">{service.description}</motion.p>
+                  <h3 className="relative z-10 text-lg font-semibold text-foreground">{service.name}</h3>
+                  <p className="relative z-10 mt-2 text-sm text-muted-foreground line-clamp-2">{service.description}</p>
                   <p className="relative z-10 mt-4 text-base font-bold text-accent">{service.price}</p>
                 </motion.div>
               )

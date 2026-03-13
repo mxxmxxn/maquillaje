@@ -1,5 +1,5 @@
 import { useMemo, useState, useEffect, useRef } from 'react'
-import { AnimatePresence, motion, useMotionTemplate, useScroll, useSpring, useTransform } from 'framer-motion'
+import { AnimatePresence, motion } from 'framer-motion'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { supabase } from '@/integrations/supabase/client'
 import FloatingCard from '@/components/effects/FloatingCard'
@@ -27,14 +27,6 @@ export default function GallerySection() {
   const [items, setItems] = useState<GalleryItem[]>(defaultItems)
   const [active, setActive] = useState('todos')
   const [selected, setSelected] = useState<GalleryItem | null>(null)
-  const { scrollYProgress } = useScroll({ target: sectionRef, offset: ['start 88%', 'end 22%'] })
-  const progress = useSpring(scrollYProgress, { damping: 26, stiffness: 120 })
-  const headingY = useTransform(progress, [0, 1], [48, -8])
-  const headingRotateX = useTransform(progress, [0, 1], [14, 0])
-  const headingScale = useTransform(progress, [0, 1], [0.93, 1.03])
-  const headingDepth = useTransform(progress, [0, 1], [0, 1])
-  const headingShadow = useMotionTemplate`0 ${headingDepth}px 0 rgba(170,98,134,0.32), 0 ${headingDepth}0px 24px rgba(170,98,134,0.2)`
-  const captionLift = useTransform(progress, [0, 1], [10, 0])
 
   useEffect(() => {
     const load = async () => {
@@ -61,12 +53,7 @@ export default function GallerySection() {
     <section ref={sectionRef} id="trabajos" className="section-padding bg-secondary/45 [perspective:1000px]">
       <div className="container">
         <ScrollReveal>
-          <motion.h2
-            style={{ y: headingY, rotateX: headingRotateX, scale: headingScale, textShadow: headingShadow }}
-            className="section-title will-change-transform"
-          >
-            Trabajos
-          </motion.h2>
+          <h2 className="section-title">Trabajos</h2>
         </ScrollReveal>
         <div className="mb-8 flex flex-wrap gap-2">
           {categories.map((category) => (
@@ -97,14 +84,9 @@ export default function GallerySection() {
                   <button className="relative w-full overflow-hidden rounded-2xl" onClick={() => setSelected(item)}>
                     <img src={item.image_url} alt={item.title} loading="lazy" className="h-72 w-full rounded-2xl object-cover" />
                     <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/45 via-transparent to-transparent opacity-60 transition group-hover:opacity-80" />
-                    <motion.span
-                      style={{ y: captionLift }}
-                      initial={{ y: 0 }}
-                      whileHover={{ y: -3 }}
-                      className="absolute bottom-3 left-3 rounded-full bg-white/90 px-3 py-1 text-xs font-medium [text-shadow:0_1px_0_rgba(120,61,90,0.28)]"
-                    >
+                    <span className="absolute bottom-3 left-3 rounded-full bg-white/90 px-3 py-1 text-xs font-medium [text-shadow:0_1px_0_rgba(120,61,90,0.28)]">
                       {item.title}
-                    </motion.span>
+                    </span>
                   </button>
                 </FloatingCard>
               </motion.div>

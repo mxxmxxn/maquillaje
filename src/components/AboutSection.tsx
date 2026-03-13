@@ -5,6 +5,8 @@ import CountUp from '@/components/effects/CountUp'
 import ScrollReveal from '@/components/effects/ScrollReveal'
 import SmoothReveal from '@/components/effects/SmoothReveal'
 
+const winkImage = new URL('../assets/Winkblack.png', import.meta.url).href
+
 type AboutData = {
   paragraph_1: string
   paragraph_2: string
@@ -71,8 +73,11 @@ export default function AboutSection() {
 
   return (
     <section ref={sectionRef} id="sobre-mi" onMouseMove={handleMove} className="section-padding relative overflow-hidden bg-white [perspective:1000px]">
+      <div className="pointer-events-none absolute inset-0">
+        <img src={winkImage} alt="wink background" className="h-full w-full object-cover opacity-15" />
+      </div>
       <motion.div style={{ background: spotlight }} className="pointer-events-none absolute inset-0" />
-      <div className="container grid items-center gap-12 lg:grid-cols-2">
+      <div className="container grid items-center gap-12 lg:grid-cols-2 relative z-10">
         <SmoothReveal direction="left">
           <ScrollReveal>
             <motion.h2

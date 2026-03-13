@@ -1,6 +1,7 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Instagram, MessageCircle, Send } from 'lucide-react'
 import type { FormEvent } from 'react'
+import { motion, useScroll, useSpring, useTransform } from 'framer-motion'
 import { supabase } from '@/integrations/supabase/client'
 import FloatingCard from '@/components/effects/FloatingCard'
 import MagneticButton from '@/components/effects/MagneticButton'
@@ -9,6 +10,8 @@ import SmoothReveal from '@/components/effects/SmoothReveal'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { toast } from '@/hooks/use-toast'
+
+const phoneImage = new URL('../assets/ScrollingPhone.png', import.meta.url).href
 
 type ContactData = {
   description: string
@@ -25,7 +28,12 @@ const defaultContact: ContactData = {
 }
 
 export default function ContactSection() {
+  const sectionRef = useRef<HTMLElement | null>(null)
   const [contact, setContact] = useState<ContactData>(defaultContact)
+  const { scrollYProgress } = useScroll({ target: sectionRef, offset: ['start 85%', 'end 20%'] })
+  const progress = useSpring(scrollYProgress, { damping: 30, stiffness: 80 })
+  const phoneY = useTransform(progress, [0, 1], [200, 0])
+  const phoneOpacity = useTransform(progress, [0, 1], [0, 1])
 
   useEffect(() => {
     const load = async () => {
@@ -58,9 +66,15 @@ export default function ContactSection() {
   }
 
   return (
-    <section id="contacto" className="section-padding relative overflow-hidden bg-white">
+    <section ref={sectionRef} id="contacto" className="section-padding relative overflow-hidden bg-white">
       <div className="pointer-events-none absolute left-0 top-0 h-72 w-72 bg-[radial-gradient(circle,rgba(243,186,207,0.35)_0%,rgba(255,255,255,0)_70%)]" />
-      <div className="container relative grid gap-10 lg:grid-cols-2">
+      <motion.div 
+        className="pointer-events-none absolute inset-0 flex items-center justify-center"
+        style={{ y: phoneY, opacity: phoneOpacity }}
+      >
+        <img src={phoneImage} alt="phone" className="h-[600px] w-auto object-contain opacity-8" />
+      </motion.div>
+      <div className="container relative z-10 grid gap-10 lg:grid-cols-2">
         <ScrollReveal>
           <div>
             <h2 className="section-title">Contacto</h2>
