@@ -7,6 +7,11 @@ import { Input } from '@/components/ui/input'
 import { toast } from '@/hooks/use-toast'
 import ImageUpload from '@/components/admin/ImageUpload'
 
+type ServiceCategory = {
+  id: string
+  name: string
+}
+
 type GalleryItem = {
   id?: string
   image_url: string
@@ -19,6 +24,7 @@ const initial: GalleryItem = { image_url: '', category: '', title: '', sort_orde
 
 export default function AdminGallery() {
   const [items, setItems] = useState<GalleryItem[]>([])
+  const [categories, setCategories] = useState<ServiceCategory[]>([])
   const [form, setForm] = useState<GalleryItem>(initial)
 
   const load = async () => {
@@ -26,8 +32,14 @@ export default function AdminGallery() {
     if (data) setItems(data as GalleryItem[])
   }
 
+  const loadCategories = async () => {
+    const { data } = await supabase.from('service_categories').select('id, name').order('sort_order')
+    if (data) setCategories(data as ServiceCategory[])
+  }
+
   useEffect(() => {
     load()
+    loadCategories()
   }, [])
 
   const save = async (event: FormEvent) => {
@@ -47,7 +59,16 @@ export default function AdminGallery() {
       </div>
       <form onSubmit={save} className="space-y-4">
         <Input value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} placeholder="Titulo" />
-        <Input value={form.category} onChange={(e) => setForm({ ...form, category: e.target.value })} placeholder="Categoria" />
+        <select
+          value={form.category}
+          onChange={(e) => setForm({ ...form, category: e.target.value })}
+          className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+        >
+          <option value="">Selecciona una categoría</option>
+          {categories.map(cat => (
+            <option key={cat.id} value={cat.name}>{cat.name}</option>
+          ))}
+        </select>
         <Input value={form.image_url} onChange={(e) => setForm({ ...form, image_url: e.target.value })} placeholder="URL de imagen" />
         <ImageUpload onUploaded={(url) => setForm({ ...form, image_url: url })} />
         <Input type="number" value={form.sort_order} onChange={(e) => setForm({ ...form, sort_order: Number(e.target.value) })} placeholder="Orden" />
