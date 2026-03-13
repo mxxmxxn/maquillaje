@@ -20,13 +20,13 @@ export default function ParticleField() {
       return {
         x: rand(t + 1) * window.innerWidth,
         y: rand(t + 2) * window.innerHeight,
-        vx: (rand(t + 3) - 0.5) * 0.18,
-        vy: 0.35 + rand(t + 4) * 0.8,
-        baseSize: 1 + rand(t + 5) * 2.6,
-        alpha: 0.12 + rand(t + 6) * 0.45,
+        vx: (rand(t + 3) - 0.5) * 0.05,
+        vy: (rand(t + 4) - 0.5) * 0.05,
+        baseSize: 1.6 + rand(t + 5) * 3,
+        alpha: 0.15 + rand(t + 6) * 0.28,
         driftPhase: rand(t + 7) * Math.PI * 2,
-        driftSpeed: 0.004 + rand(t + 8) * 0.006,
-        driftAmp: 0.05 + rand(t + 9) * 0.22,
+        driftSpeed: 0.0018 + rand(t + 8) * 0.0038,
+        driftAmp: 0.025 + rand(t + 9) * 0.11,
       }
     })
 
@@ -61,9 +61,9 @@ export default function ParticleField() {
       for (let i = 0; i < particles.length; i++) {
         const p = particles[i]
 
-        // Snow-like motion: constant soft fall + horizontal sway.
+        // Static floating motion with subtle local drift (no top-to-bottom fall).
         p.vx += Math.sin(now * p.driftSpeed + p.driftPhase) * p.driftAmp * 0.02
-        p.vy += 0.0018
+        p.vy += Math.cos(now * p.driftSpeed + p.driftPhase * 0.8) * p.driftAmp * 0.02
 
         if (pointer.active) {
           const dx = pointer.x - p.x
@@ -79,31 +79,38 @@ export default function ParticleField() {
         }
 
         p.vx *= 0.992
-        p.vy *= 0.996
+        p.vy *= 0.992
         p.x += p.vx
         p.y += p.vy
 
         if (p.x < -20) p.x = width + 20
         if (p.x > width + 20) p.x = -20
-        if (p.y > height + 20) {
-          p.y = -20
-          p.x = rand(i + now * 0.001) * width
-          p.vy = 0.35 + rand(i + now * 0.002) * 0.8
-        }
+        if (p.y < -20) p.y = height + 20
+        if (p.y > height + 20) p.y = -20
 
         if (pointer.active) {
           const shimmer = Math.sin((now * 0.0025) + i * 0.7) * 0.5 + 0.5
           const size = p.baseSize + shimmer * 0.9
+          const glow = 18 + shimmer * 12
           ctx.beginPath()
-          ctx.shadowBlur = 15
-          ctx.shadowColor = 'rgba(255,185,211,0.55)'
-          ctx.fillStyle = `rgba(255,225,236,${p.alpha})`
+          ctx.shadowBlur = glow
+          ctx.shadowColor = 'rgba(214,111,148,0.5)'
+          ctx.fillStyle = `rgba(231,150,182,${p.alpha})`
           ctx.arc(p.x, p.y, size, 0, Math.PI * 2)
           ctx.fill()
           ctx.shadowBlur = 0
         } else {
+          const gradient = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.baseSize * 2.6)
+          gradient.addColorStop(0, `rgba(223,123,163,${Math.min(0.4, p.alpha + 0.1)})`)
+          gradient.addColorStop(1, 'rgba(223,123,163,0)')
+
           ctx.beginPath()
-          ctx.fillStyle = `rgba(255,216,230,${p.alpha})`
+          ctx.fillStyle = gradient
+          ctx.arc(p.x, p.y, p.baseSize * 2.6, 0, Math.PI * 2)
+          ctx.fill()
+
+          ctx.beginPath()
+          ctx.fillStyle = `rgba(231,150,182,${p.alpha})`
           ctx.arc(p.x, p.y, p.baseSize, 0, Math.PI * 2)
           ctx.fill()
         }
