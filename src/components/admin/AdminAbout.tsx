@@ -62,17 +62,28 @@ export default function AdminAbout() {
       <Textarea value={form.paragraph_1} onChange={(e) => setForm({ ...form, paragraph_1: e.target.value })} placeholder="Descripción sobre ti" />
       <Textarea value={form.paragraph_2} onChange={(e) => setForm({ ...form, paragraph_2: e.target.value })} placeholder="Descripción adicional" />
       <Textarea value={form.paragraph_3} onChange={(e) => setForm({ ...form, paragraph_3: e.target.value })} placeholder="Descripción adicional 2" />
-      <div className="grid gap-3">
-        <Input type="number" value={form.stat_1_number} onChange={(e) => setForm({ ...form, stat_1_number: Number(e.target.value) })} placeholder="Numero" />
-        <Input value={form.stat_1_label} onChange={(e) => setForm({ ...form, stat_1_label: e.target.value })} placeholder="Ej: Clientes felices" />
-      </div>
-      <div className="grid gap-3">
-        <Input type="number" value={form.stat_2_number} onChange={(e) => setForm({ ...form, stat_2_number: Number(e.target.value) })} placeholder="Numero" />
-        <Input value={form.stat_2_label} onChange={(e) => setForm({ ...form, stat_2_label: e.target.value })} placeholder="Ej: Años de experiencia" />
-      </div>
-      <div className="grid gap-3">
-        <Input type="number" value={form.stat_3_number} onChange={(e) => setForm({ ...form, stat_3_number: Number(e.target.value) })} placeholder="Numero" />
-        <Input value={form.stat_3_label} onChange={(e) => setForm({ ...form, stat_3_label: e.target.value })} placeholder="Ej: Certificaciones" />
+      <div className="space-y-4">
+        <div className="space-y-2">
+          <label className="text-sm font-medium">Clientes felices</label>
+          <div className="flex gap-2">
+            <Input type="text" value={form.stat_1_number} onChange={(e) => setForm({ ...form, stat_1_number: Number(e.target.value) || 0 })} placeholder="Ej: 180" className="flex-1" />
+            <Input value={form.stat_1_label} onChange={(e) => setForm({ ...form, stat_1_label: e.target.value })} placeholder="Nombre" className="flex-1" />
+          </div>
+        </div>
+        <div className="space-y-2">
+          <label className="text-sm font-medium">Años de experiencia</label>
+          <div className="flex gap-2">
+            <Input type="text" value={form.stat_2_number} onChange={(e) => setForm({ ...form, stat_2_number: Number(e.target.value) || 0 })} placeholder="Ej: 8" className="flex-1" />
+            <Input value={form.stat_2_label} onChange={(e) => setForm({ ...form, stat_2_label: e.target.value })} placeholder="Nombre" className="flex-1" />
+          </div>
+        </div>
+        <div className="space-y-2">
+          <label className="text-sm font-medium">Certificaciones</label>
+          <div className="flex gap-2">
+            <Input type="text" value={form.stat_3_number} onChange={(e) => setForm({ ...form, stat_3_number: Number(e.target.value) || 0 })} placeholder="Ej: 35" className="flex-1" />
+            <Input value={form.stat_3_label} onChange={(e) => setForm({ ...form, stat_3_label: e.target.value })} placeholder="Nombre" className="flex-1" />
+          </div>
+        </div>
       </div>
       <Button type="submit" variant="pink">Guardar cambios</Button>
     </form>
