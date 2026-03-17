@@ -99,7 +99,9 @@ create table if not exists public.services (
 
 alter table public.hero_settings add column if not exists description text not null default '';
 alter table public.about_content add column if not exists description text not null default '';
+alter table public.services add column if not exists category_id uuid references public.service_categories(id);
 alter table public.services add column if not exists image_url text not null default '';
+alter table public.testimonials add column if not exists category text not null default '';
 
 do $$
 begin
@@ -159,6 +161,14 @@ begin
     where table_schema = 'public' and table_name = 'services' and column_name = 'description'
   ) then
     execute 'alter table public.services drop column description';
+  end if;
+
+  if exists (
+    select 1 from information_schema.columns
+    where table_schema = 'public' and table_name = 'testimonials' and column_name = 'service'
+  ) then
+    execute 'update public.testimonials set category = coalesce(nullif(category, ''''), service)';
+    execute 'alter table public.testimonials drop column service';
   end if;
 end $$;
 
@@ -337,6 +347,10 @@ insert into public.about_content (id)
 values ('default')
 on conflict (id) do nothing;
 
+insert into public.contact_info (id)
+values ('default')
+on conflict (id) do nothing;
+
 update public.about_content
 set
   description = case when description = '' then 'Soy maquilladora profesional especializada en piel real y acabados elegantes. Cada look se adapta a tu estilo, tu evento y la luz con la que vas a vivirlo.' else description end,
@@ -353,6 +367,14 @@ set
   title = case when title = '' then 'Diseno de belleza con movimiento, luz y presencia' else title end,
   description = case when description = '' then 'Un fondo luminoso y delicado acompana cada look para mantener la portada viva sin ocultar la imagen principal.' else description end,
   hero_image_url = case when hero_image_url = '' then '/imagen_maquillaje.jpg' else hero_image_url end
+where id = 'default';
+
+update public.contact_info
+set
+  description = case when description = '' then 'Cuentame fecha, horario y estilo deseado para preparar una propuesta a tu medida.' else description end,
+  instagram_url = case when instagram_url = '' then 'https://instagram.com' else instagram_url end,
+  whatsapp_number = case when whatsapp_number = '' then '34685647170' else whatsapp_number end,
+  email = case when email = '' then 'hola@maquillaje.com' else email end
 where id = 'default';
 
 insert into public.service_categories (id, name, sort_order)
@@ -391,6 +413,25 @@ on conflict (id) do update set
   price = excluded.price,
   image_url = excluded.image_url,
   sort_order = excluded.sort_order;
+
+insert into public.testimonials (id, name, text, rating, category, photo_url)
+values
+  ('c1111111-1111-4111-8111-111111111111', 'Andrea', 'Increible resultado, duracion perfecta toda la noche.', 5, 'Social Glam', ''),
+  ('c2222222-2222-4222-8222-222222222222', 'Lucia', 'Mi look de novia fue exactamente como lo sonaba.', 5, 'Novias', ''),
+  ('c3333333-3333-4333-8333-333333333333', 'Nadia', 'Atencion super profesional y maquillaje elegante.', 5, 'Editorial', ''),
+  ('c4444444-4444-4444-8444-444444444444', 'Sofia', 'La piel se veia luminosa y natural incluso en fotos con flash.', 5, 'Novias', ''),
+  ('c5555555-5555-4555-8555-555555555555', 'Valeria', 'Puntual, detallista y con muy buen gusto para elegir tonos.', 5, 'Social Glam', ''),
+  ('c6666666-6666-4666-8666-666666666666', 'Camila', 'Me encanto la asesoria previa, supo entender justo lo que queria.', 5, 'Prueba Novia', ''),
+  ('c7777777-7777-4777-8777-777777777777', 'Paula', 'Trabajo fino, limpio y muy duradero. Repetire seguro.', 5, 'Evento de noche', ''),
+  ('c8888888-8888-4888-8888-888888888888', 'Marta', 'Quedo precioso en video y en persona, cero efecto pesado.', 5, 'Editorial', ''),
+  ('c9999999-9999-4999-8999-999999999999', 'Elena', 'Todo el proceso fue muy comodo y profesional, super recomendada.', 5, 'Social Glam', ''),
+  ('d1111111-1111-4111-8111-111111111111', 'Irene', 'Me senti guapisima y segura toda la boda, fue un acierto total.', 5, 'Novias', '')
+on conflict (id) do update set
+  name = excluded.name,
+  text = excluded.text,
+  rating = excluded.rating,
+  category = excluded.category,
+  photo_url = excluded.photo_url;
 
 -- Admin inicial por email.
 insert into public.admin_users (email)

@@ -1,22 +1,39 @@
+import { useEffect, useState } from 'react'
 import { Star } from 'lucide-react'
 import { motion } from 'framer-motion'
 import FloatingCard from '@/components/effects/FloatingCard'
 import SparklesText from '@/components/effects/SparklesText'
+import { supabase } from '@/integrations/supabase/client'
 
-const testimonials = [
-  { name: 'Andrea', text: 'Increible resultado, duracion perfecta toda la noche.', service: 'Social Glam', rating: 5 },
-  { name: 'Lucia', text: 'Mi look de novia fue exactamente como lo sonaba.', service: 'Novias', rating: 5 },
-  { name: 'Nadia', text: 'Atencion super profesional y maquillaje elegante.', service: 'Editorial', rating: 5 },
-  { name: 'Sofia', text: 'La piel se veia luminosa y natural incluso en fotos con flash.', service: 'Novias', rating: 5 },
-  { name: 'Valeria', text: 'Puntual, detallista y con muy buen gusto para elegir tonos.', service: 'Social Glam', rating: 5 },
-  { name: 'Camila', text: 'Me encanto la asesoria previa, supo entender justo lo que queria.', service: 'Prueba Novia', rating: 5 },
-  { name: 'Paula', text: 'Trabajo fino, limpio y muy duradero. Repetire seguro.', service: 'Evento de noche', rating: 5 },
-  { name: 'Marta', text: 'Quedo precioso en video y en persona, cero efecto pesado.', service: 'Editorial', rating: 5 },
-  { name: 'Elena', text: 'Todo el proceso fue muy comodo y profesional, super recomendada.', service: 'Social Glam', rating: 5 },
-  { name: 'Irene', text: 'Me senti guapisima y segura toda la boda, fue un acierto total.', service: 'Novias', rating: 5 },
-]
+type Testimonial = {
+  id: string
+  name: string
+  text: string
+  rating: number
+  category: string
+  photo_url: string
+}
+
+const defaultTestimonials: Testimonial[] = []
 
 export default function TestimonialsSection() {
+  const [testimonials, setTestimonials] = useState<Testimonial[]>(defaultTestimonials)
+
+  useEffect(() => {
+    const load = async () => {
+      try {
+        const { data } = await supabase.from('testimonials').select('*')
+        if (data) {
+          setTestimonials(data as Testimonial[])
+        }
+      } catch {
+        console.error('Error cargando testimonios')
+      }
+    }
+
+    load()
+  }, [])
+
   const looped = [...testimonials, ...testimonials]
 
   return (
@@ -44,7 +61,7 @@ export default function TestimonialsSection() {
                 </div>
                 <p className="italic text-muted-foreground">"{item.text}"</p>
                 <p className="mt-4 text-lg font-semibold">{item.name}</p>
-                <p className="text-xs uppercase tracking-wide text-muted-foreground">{item.service}</p>
+                <p className="text-xs uppercase tracking-wide text-muted-foreground">{item.category}</p>
               </FloatingCard>
             ))}
           </div>

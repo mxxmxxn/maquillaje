@@ -25,11 +25,23 @@ export interface Database {
         stat_3_number: number
         stat_3_label: string
       }>
+      contact_info: PublicRow<{
+        id: string
+        description: string
+        instagram_url: string
+        whatsapp_number: string
+        email: string
+      }>
       gallery_items: PublicRow<{
         id: string
         image_url: string
         category: string
         title: string
+        sort_order: number
+      }>
+      service_categories: PublicRow<{
+        id: string
+        name: string
         sort_order: number
       }>
       services: PublicRow<{
@@ -45,7 +57,7 @@ export interface Database {
         name: string
         text: string
         rating: number
-        service: string
+        category: string
         photo_url: string
       }>
     }
