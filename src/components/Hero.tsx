@@ -1,7 +1,6 @@
 import { motion, useScroll, useTransform } from 'framer-motion'
 import { useEffect, useState } from 'react'
 import { ArrowDown } from 'lucide-react'
-import MagneticButton from '@/components/effects/MagneticButton'
 import ParticleField from '@/components/effects/ParticleField'
 import TextReveal from '@/components/effects/TextReveal'
 import { supabase } from '@/integrations/supabase/client'
@@ -52,15 +51,6 @@ export default function Hero() {
       <motion.div style={{ opacity: contentOpacity }} className="container relative z-30">
         <div className="grid items-center gap-10 lg:grid-cols-[1.1fr,0.9fr]">
           <div className="text-center lg:text-left">
-            <motion.span
-              initial={{ opacity: 0, y: 14 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.1, duration: 0.55 }}
-              className="inline-flex items-center rounded-full border border-white/35 bg-black/25 px-4 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-white/90 backdrop-blur-sm"
-            >
-              Maquillaje artistico en vivo
-            </motion.span>
-
             <TextReveal text={hero.title || 'Diseno de belleza con movimiento, luz y presencia'} className="mx-auto mt-6 max-w-4xl text-5xl leading-[0.95] text-white md:text-7xl lg:mx-0" />
 
             <motion.p
@@ -78,19 +68,12 @@ export default function Hero() {
               transition={{ delay: 0.6, duration: 0.6 }}
               className="mt-10 flex flex-wrap items-center justify-center gap-4 lg:justify-start"
             >
-              <a href="https://wa.me/34685647170?text=Hola%2C%20quiero%20reservar%20una%20cita%20de%20maquillaje" target="_blank" rel="noreferrer" className="lg:hidden rounded-full border border-white/70 bg-white px-8 py-3 text-sm font-semibold text-neutral-900 shadow-elevated transition hover:scale-[1.02]">
+              <a href="https://wa.me/34685647170?text=Hola%2C%20quiero%20reservar%20una%20cita%20de%20maquillaje" target="_blank" rel="noreferrer" className="lg:hidden min-w-[220px] rounded-full border border-white/70 bg-white px-10 py-3 text-center text-sm font-semibold text-neutral-900 shadow-elevated transition hover:scale-[1.02]">
                 Contactar
               </a>
-              <a href="#contacto" className="hidden lg:inline-block rounded-full border border-white/70 bg-white px-8 py-3 text-sm font-semibold text-neutral-900 shadow-elevated transition hover:scale-[1.02]">
+              <a href="#contacto" className="hidden min-w-[260px] lg:inline-block rounded-full border border-white/70 bg-white px-12 py-3 text-center text-sm font-semibold text-neutral-900 shadow-elevated transition hover:scale-[1.02]">
                 Reservar cita
               </a>
-              <MagneticButton
-                whileTap={{ scale: 0.95, rotate: 1 }}
-                transition={{ type: 'spring', stiffness: 360, damping: 13 }}
-                className="rounded-full border border-white/45 bg-white/10 px-8 py-3 text-sm font-semibold text-white backdrop-blur-md"
-              >
-                Ver portfolio
-              </MagneticButton>
             </motion.div>
           </div>
 

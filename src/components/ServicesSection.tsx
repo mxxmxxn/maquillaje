@@ -1,4 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
+import { Brush, Crown, Sparkles, Wand2 } from 'lucide-react'
+import type { LucideIcon } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import SparklesText from '@/components/effects/SparklesText'
 import { supabase } from '@/integrations/supabase/client'
@@ -33,14 +35,22 @@ type Service = {
   id: string
   name: string
   category_id: string | null
+  description: string
   price: string
-  image_url: string
+  icon: string
   sort_order: number
 }
 
 const defaultServices: Service[] = [
   
 ]
+
+const iconMap: Record<string, LucideIcon> = {
+  Crown,
+  Sparkles,
+  Brush,
+  Wand2,
+}
 
 export default function ServicesSection() {
   const sectionRef = useRef<HTMLElement | null>(null)
@@ -95,6 +105,7 @@ export default function ServicesSection() {
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4 mt-12">
           <AnimatePresence mode="wait">
             {services.map((service, index) => {
+              const IconComponent = iconMap[service.icon] || Sparkles
               return (
                 <motion.div
                   key={service.id}
@@ -106,9 +117,15 @@ export default function ServicesSection() {
                   className="group relative flex flex-col items-center justify-center rounded-3xl border border-white/30 bg-white/70 p-6 text-center backdrop-blur-xl shadow-lg transition-all duration-300 hover:border-white/50 hover:bg-white/80"
                 >
                   <div className="absolute inset-0 rounded-3xl bg-[radial-gradient(circle_at_30%_30%,rgba(255,255,255,0.15)_0%,rgba(255,255,255,0)_70%)] opacity-0 transition-opacity group-hover:opacity-100" />
-                  <img src={service.image_url} alt={service.name} className="relative z-10 mb-4 h-40 w-full rounded-2xl object-cover" />
-                  <h3 className="relative z-10 text-lg font-semibold text-foreground">{service.name}</h3>
-                  <p className="relative z-10 mt-2 text-sm text-muted-foreground">{getCategoryName(service.category_id)}</p>
+                  <motion.div
+                    className="relative z-10"
+                    animate={{ y: [0, -6, 0] }}
+                    transition={{ duration: 3 + index * 0.5, repeat: Infinity, ease: 'easeInOut' }}
+                  >
+                    <IconComponent className="mx-auto mb-4 h-8 w-8 text-foreground/70 transition group-hover:text-accent group-hover:scale-110" />
+                  </motion.div>
+                  <h3 className="relative z-10 text-lg font-semibold text-foreground">{getCategoryName(service.category_id)}</h3>
+                  <p className="relative z-10 mt-2 text-sm text-muted-foreground line-clamp-3">{service.description}</p>
                   <p className="relative z-10 mt-4 text-base font-bold text-accent">{service.price}</p>
                 </motion.div>
               )

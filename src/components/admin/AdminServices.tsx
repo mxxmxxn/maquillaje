@@ -4,8 +4,8 @@ import { motion } from 'framer-motion'
 import { supabase } from '@/integrations/supabase/client'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { Textarea } from '@/components/ui/textarea'
 import { toast } from '@/hooks/use-toast'
-import ImageUpload from '@/components/admin/ImageUpload'
 
 type ServiceCategory = {
   id: string
@@ -16,12 +16,15 @@ type Service = {
   id?: string
   name: string
   category_id: string | null
+  description: string
   price: string
-  image_url: string
+  icon: string
   sort_order: number
 }
 
-const initial: Service = { name: '', category_id: null, price: '', image_url: '', sort_order: 0 }
+const ICON_OPTIONS = ['Crown', 'Sparkles', 'Brush', 'Wand2', 'Star', 'Heart', 'Gem', 'Palette']
+
+const initial: Service = { name: '', category_id: null, description: '', price: '', icon: 'Sparkles', sort_order: 0 }
 
 export default function AdminServices() {
   const [items, setItems] = useState<Service[]>([])
@@ -49,7 +52,14 @@ export default function AdminServices() {
       toast({ title: 'Error', description: 'Debes seleccionar una categoría' })
       return
     }
-    const { error } = await supabase.from('services').upsert(form)
+    const categoryName = categories.find((category) => category.id === form.category_id)?.name || ''
+    const nextSortOrder = form.id ? form.sort_order : (items.at(-1)?.sort_order ?? -1) + 1
+    const payload = {
+      ...form,
+      name: categoryName,
+      sort_order: nextSortOrder,
+    }
+    const { error } = await supabase.from('services').upsert(payload)
     if (error) return toast({ title: 'Error al guardar servicios', description: error.message })
     toast({ title: 'Servicio guardado' })
     setForm(initial)
@@ -64,9 +74,18 @@ export default function AdminServices() {
     <div className="space-y-6">
       <div>
         <h2 className="text-2xl font-semibold">Servicios</h2>
-        <p className="text-sm text-muted-foreground">Gestiona nombre, categoría, precio e imagen del servicio.</p>
+        <p className="text-sm text-muted-foreground">Gestiona icono, categoría, descripcion del servicio y precio.</p>
       </div>
       <form onSubmit={save} className="space-y-4">
+        <select
+          value={form.icon}
+          onChange={(e) => setForm({ ...form, icon: e.target.value })}
+          className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+        >
+          {ICON_OPTIONS.map(icon => (
+            <option key={icon} value={icon}>{icon}</option>
+          ))}
+        </select>
         <select
           value={form.category_id || ''}
           onChange={(e) => setForm({ ...form, category_id: e.target.value || null })}
@@ -77,9 +96,8 @@ export default function AdminServices() {
             <option key={cat.id} value={cat.id}>{cat.name}</option>
           ))}
         </select>
-        <Input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} placeholder="Tipo de servicio" />
+        <Textarea value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} placeholder="Descripcion del servicio" />
         <Input value={form.price} onChange={(e) => setForm({ ...form, price: e.target.value })} placeholder="Precio" />
-        <ImageUpload onUploaded={(url) => setForm({ ...form, image_url: url })} />
         <Button type="submit" variant="pink">Guardar servicio</Button>
       </form>
 
@@ -96,9 +114,9 @@ export default function AdminServices() {
               animate={{ opacity: 1, scale: 1 }}
               className="flex flex-col items-center justify-center rounded-3xl border border-white/24 bg-gradient-to-b from-white/10 to-white/5 p-4 text-center backdrop-blur-md"
             >
-              <img src={item.image_url} alt={item.name} className="mb-3 h-32 w-full rounded-2xl object-cover" />
-              <h4 className="text-sm font-semibold">{item.name}</h4>
-              <p className="text-xs text-muted-foreground mt-1">{getCategoryName(item.category_id)}</p>
+              <p className="mt-1 text-xs text-muted-foreground">{item.icon}</p>
+              <h4 className="text-sm font-semibold">{getCategoryName(item.category_id)}</h4>
+              <p className="mt-2 text-xs text-muted-foreground line-clamp-3">{item.description}</p>
               <p className="mt-2 text-sm font-semibold text-accent">{item.price}</p>
             </motion.div>
           ))}
@@ -115,7 +133,7 @@ export default function AdminServices() {
       <div className="space-y-2">
         {items.map((item) => (
           <div key={item.id} className="glass-card flex items-center justify-between p-3 text-sm">
-            <span>{item.name} - {getCategoryName(item.category_id)} - {item.price}</span>
+            <span>{item.icon} - {getCategoryName(item.category_id)} - {item.description} - {item.price}</span>
             <Button
               variant="destructive"
               size="sm"

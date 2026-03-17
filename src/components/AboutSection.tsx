@@ -53,7 +53,7 @@ export default function AboutSection() {
     { number: about.stat_1_number, label: about.stat_1_label },
     { number: about.stat_2_number, label: about.stat_2_label },
     { number: about.stat_3_number, label: about.stat_3_label },
-  ]
+  ].filter((item) => item.label.trim() !== '' || item.number > 0)
 
   const handleMove = (event: React.MouseEvent<HTMLElement>) => {
     const rect = event.currentTarget.getBoundingClientRect()
@@ -76,21 +76,23 @@ export default function AboutSection() {
             {about.description}
           </motion.p>
 
-          <div className="grid gap-4 sm:grid-cols-3">
-            {stats.map((item) => (
-              <motion.div
-                key={item.label}
-                whileHover={{ y: -6, scale: 1.02 }}
-                transition={{ type: 'spring', stiffness: 240, damping: 16 }}
-                className="glass-card p-4 text-center"
-              >
-                <p className="text-3xl font-semibold text-gradient">
-                  <CountUp value={item.number} />+
-                </p>
-                <p className="text-xs uppercase tracking-wide text-muted-foreground">{item.label}</p>
-              </motion.div>
-            ))}
-          </div>
+          {stats.length > 0 ? (
+            <div className="grid gap-4 sm:grid-cols-3">
+              {stats.map((item) => (
+                <motion.div
+                  key={item.label || String(item.number)}
+                  whileHover={{ y: -6, scale: 1.02 }}
+                  transition={{ type: 'spring', stiffness: 240, damping: 16 }}
+                  className="glass-card p-4 text-center"
+                >
+                  <p className="text-3xl font-semibold text-gradient">
+                    <CountUp value={item.number} />+
+                  </p>
+                  <p className="text-xs uppercase tracking-wide text-muted-foreground">{item.label}</p>
+                </motion.div>
+              ))}
+            </div>
+          ) : null}
         </SmoothReveal>
 
         <SmoothReveal direction="right">

@@ -47,9 +47,10 @@ export interface Database {
       services: PublicRow<{
         id: string
         name: string
+        description: string
         price: string
         category_id: string | null
-        image_url: string
+        icon: string
         sort_order: number
       }>
       testimonials: PublicRow<{

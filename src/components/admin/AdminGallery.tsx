@@ -44,7 +44,8 @@ export default function AdminGallery() {
 
   const save = async (event: FormEvent) => {
     event.preventDefault()
-    const { error } = await supabase.from('gallery_items').upsert(form)
+    const nextSortOrder = form.id ? form.sort_order : (items.at(-1)?.sort_order ?? -1) + 1
+    const { error } = await supabase.from('gallery_items').upsert({ ...form, sort_order: nextSortOrder })
     if (error) return toast({ title: 'Error al guardar la galeria', description: error.message })
     toast({ title: 'Item de galeria guardado' })
     setForm(initial)
@@ -70,7 +71,6 @@ export default function AdminGallery() {
           ))}
         </select>
         <ImageUpload onUploaded={(url) => setForm({ ...form, image_url: url })} />
-        <Input type="number" value={form.sort_order} onChange={(e) => setForm({ ...form, sort_order: Number(e.target.value) })} placeholder="Orden" />
         <Button type="submit" variant="pink">Guardar item</Button>
       </form>
 

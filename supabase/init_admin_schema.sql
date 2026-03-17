@@ -90,9 +90,21 @@ create table if not exists public.services (
   id uuid primary key default gen_random_uuid(),
   name text not null,
   category_id uuid references public.service_categories(id),
+  description text not null default '',
   price text not null,
-  image_url text not null default '',
+  icon text not null default 'Sparkles',
   sort_order integer not null default 0,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+create table if not exists public.testimonials (
+  id uuid primary key default gen_random_uuid(),
+  name text not null,
+  text text not null,
+  rating integer not null default 5 check (rating between 1 and 5),
+  category text not null,
+  photo_url text not null default '',
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
@@ -100,7 +112,8 @@ create table if not exists public.services (
 alter table public.hero_settings add column if not exists description text not null default '';
 alter table public.about_content add column if not exists description text not null default '';
 alter table public.services add column if not exists category_id uuid references public.service_categories(id);
-alter table public.services add column if not exists image_url text not null default '';
+alter table public.services add column if not exists description text not null default '';
+alter table public.services add column if not exists icon text not null default 'Sparkles';
 alter table public.testimonials add column if not exists category text not null default '';
 
 do $$
@@ -151,16 +164,9 @@ begin
 
   if exists (
     select 1 from information_schema.columns
-    where table_schema = 'public' and table_name = 'services' and column_name = 'icon'
+    where table_schema = 'public' and table_name = 'services' and column_name = 'image_url'
   ) then
-    execute 'alter table public.services drop column icon';
-  end if;
-
-  if exists (
-    select 1 from information_schema.columns
-    where table_schema = 'public' and table_name = 'services' and column_name = 'description'
-  ) then
-    execute 'alter table public.services drop column description';
+    execute 'alter table public.services drop column image_url';
   end if;
 
   if exists (
@@ -171,17 +177,6 @@ begin
     execute 'alter table public.testimonials drop column service';
   end if;
 end $$;
-
-create table if not exists public.testimonials (
-  id uuid primary key default gen_random_uuid(),
-  name text not null,
-  text text not null,
-  rating integer not null default 5 check (rating between 1 and 5),
-  category text not null,
-  photo_url text not null default '',
-  created_at timestamptz not null default now(),
-  updated_at timestamptz not null default now()
-);
 
 create index if not exists idx_gallery_items_sort_order on public.gallery_items (sort_order);
 create index if not exists idx_services_sort_order on public.services (sort_order);
@@ -401,17 +396,18 @@ on conflict (id) do update set
   title = excluded.title,
   sort_order = excluded.sort_order;
 
-insert into public.services (id, name, category_id, price, image_url, sort_order)
+insert into public.services (id, name, category_id, description, price, icon, sort_order)
 values
-  ('b1111111-1111-4111-8111-111111111111', 'Novias', '11111111-1111-4111-8111-111111111111', '$120', 'https://images.unsplash.com/photo-1519741497674-611481863552?q=80&w=900&auto=format&fit=crop', 0),
-  ('b2222222-2222-4222-8222-222222222222', 'Social Glam', '22222222-2222-4222-8222-222222222222', '$55', 'https://images.unsplash.com/photo-1487412947147-5cebf100ffc2?q=80&w=900&auto=format&fit=crop', 1),
-  ('b3333333-3333-4333-8333-333333333333', 'Editorial', '33333333-3333-4333-8333-333333333333', '$95', 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=80&w=900&auto=format&fit=crop', 2),
-  ('b4444444-4444-4444-8444-444444444444', 'Automaquillaje', '22222222-2222-4222-8222-222222222222', '$70', 'https://images.unsplash.com/photo-1522337660859-02fbefca4702?q=80&w=1200&auto=format&fit=crop', 3)
+  ('b1111111-1111-4111-8111-111111111111', 'Novias', '11111111-1111-4111-8111-111111111111', 'Prueba previa, preparacion de piel y maquillaje de larga duracion para el dia de la boda.', '$120', 'Crown', 0),
+  ('b2222222-2222-4222-8222-222222222222', 'Social Glam', '22222222-2222-4222-8222-222222222222', 'Maquillaje elegante para fiestas, invitadas y eventos con acabado pulido y favorecedor.', '$55', 'Sparkles', 1),
+  ('b3333333-3333-4333-8333-333333333333', 'Editorial', '33333333-3333-4333-8333-333333333333', 'Propuestas pensadas para sesiones, campanas y contenido visual con mayor impacto.', '$95', 'Brush', 2),
+  ('b4444444-4444-4444-8444-444444444444', 'Automaquillaje', '22222222-2222-4222-8222-222222222222', 'Clase personalizada para aprender tecnicas, productos y un look adaptado a tu rostro.', '$70', 'Wand2', 3)
 on conflict (id) do update set
   name = excluded.name,
   category_id = excluded.category_id,
+  description = excluded.description,
   price = excluded.price,
-  image_url = excluded.image_url,
+  icon = excluded.icon,
   sort_order = excluded.sort_order;
 
 insert into public.testimonials (id, name, text, rating, category, photo_url)
