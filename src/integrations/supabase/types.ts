@@ -12,16 +12,12 @@ export interface Database {
       hero_settings: PublicRow<{
         id: string
         title: string
-        subtitle: string
-        tagline: string
+        description: string
         hero_image_url: string
       }>
       about_content: PublicRow<{
         id: string
-        paragraph_1: string
-        paragraph_2: string
-        paragraph_3: string
-        photo_url: string
+        description: string
         stat_1_number: number
         stat_1_label: string
         stat_2_number: number
@@ -34,16 +30,14 @@ export interface Database {
         image_url: string
         category: string
         title: string
-        description: string
         sort_order: number
       }>
       services: PublicRow<{
         id: string
         name: string
-        description: string
         price: string
-        icon: string
         category_id: string | null
+        image_url: string
         sort_order: number
       }>
       testimonials: PublicRow<{

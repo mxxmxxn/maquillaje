@@ -9,14 +9,14 @@ import ImageUpload from '@/components/admin/ImageUpload'
 type HeroState = {
   id: string
   title: string
-  subtitle: string
+  description: string
   hero_image_url: string
 }
 
 const initial: HeroState = {
   id: 'default',
   title: '',
-  subtitle: '',
+  description: '',
   hero_image_url: '',
 }
 
@@ -48,7 +48,7 @@ export default function AdminHero() {
         <p className="text-sm text-muted-foreground">Aqui defines el texto e imagen del primer bloque de la home.</p>
       </div>
       <Input value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} placeholder="Titulo principal" />
-      <Input value={form.subtitle} onChange={(e) => setForm({ ...form, subtitle: e.target.value })} placeholder="Descripcion" />
+      <Input value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} placeholder="Descripcion" />
       <ImageUpload onUploaded={(url) => setForm({ ...form, hero_image_url: url })} />
       <Button type="submit" variant="pink">Guardar cambios</Button>
     </form>

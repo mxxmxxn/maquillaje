@@ -8,9 +8,7 @@ import SmoothReveal from '@/components/effects/SmoothReveal'
 const winkImage = new URL('../assets/Winkblack.png', import.meta.url).href
 
 type AboutData = {
-  paragraph_1: string
-  paragraph_2: string
-  paragraph_3: string
+  description: string
   stat_1_number: number
   stat_1_label: string
   stat_2_number: number
@@ -20,9 +18,7 @@ type AboutData = {
 }
 
 const defaultAbout: AboutData = {
-  paragraph_1: '',
-  paragraph_2: '',
-  paragraph_3: '',
+  description: '',
   stat_1_number: 0,
   stat_1_label: '',
   stat_2_number: 0,
@@ -40,7 +36,6 @@ export default function AboutSection() {
   const { scrollYProgress } = useScroll({ target: sectionRef, offset: ['start 85%', 'end 20%'] })
   const progress = useSpring(scrollYProgress, { damping: 26, stiffness: 120 })
   const bodyY = useTransform(progress, [0, 1], [34, 0])
-  const bodyYSoft = useTransform(bodyY, (v) => v * 0.8)
 
   useEffect(() => {
     const load = async () => {
@@ -78,13 +73,7 @@ export default function AboutSection() {
         <SmoothReveal direction="left">
           <SparklesText as="h2" text="Sobre mi" className="section-title" sparklesCount={9} colors={{ first: '#f5c7d6', second: '#dc89a5' }} />
           <motion.p style={{ y: bodyY }} className="mb-4 text-muted-foreground will-change-transform">
-            {about.paragraph_1}
-          </motion.p>
-          <motion.p style={{ y: bodyYSoft }} className="mb-6 text-muted-foreground will-change-transform">
-            {about.paragraph_2}
-          </motion.p>
-          <motion.p style={{ y: bodyYSoft }} className="mb-6 text-muted-foreground will-change-transform">
-            {about.paragraph_3}
+            {about.description}
           </motion.p>
 
           <div className="grid gap-4 sm:grid-cols-3">

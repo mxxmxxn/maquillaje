@@ -1,19 +1,49 @@
 import { motion, useScroll, useTransform } from 'framer-motion'
+import { useEffect, useState } from 'react'
 import { ArrowDown } from 'lucide-react'
 import MagneticButton from '@/components/effects/MagneticButton'
 import ParticleField from '@/components/effects/ParticleField'
 import TextReveal from '@/components/effects/TextReveal'
+import { supabase } from '@/integrations/supabase/client'
+
+type HeroContent = {
+  title: string
+  description: string
+  hero_image_url: string
+}
+
+const defaultHero: HeroContent = {
+  title: '',
+  description: '',
+  hero_image_url: '',
+}
 
 export default function Hero() {
   const { scrollY } = useScroll()
   const y = useTransform(scrollY, [0, 900], [0, 240])
   const scale = useTransform(scrollY, [0, 900], [1, 1.14])
   const contentOpacity = useTransform(scrollY, [0, 550], [1, 0])
+  const [hero, setHero] = useState<HeroContent>(defaultHero)
+
+  useEffect(() => {
+    const load = async () => {
+      try {
+        const { data } = await supabase.from('hero_settings').select('*').limit(1).maybeSingle()
+        if (data) {
+          setHero(data as HeroContent)
+        }
+      } catch {
+        console.error('Error cargando la seccion principal')
+      }
+    }
+
+    load()
+  }, [])
 
   return (
     <section id="inicio" className="relative isolate flex min-h-screen items-center overflow-hidden pt-20">
       <motion.div
-        style={{ y, scale, backgroundImage: 'url(/imagen_maquillaje.jpg)' }}
+        style={{ y, scale, backgroundImage: `url(${hero.hero_image_url || '/imagen_maquillaje.jpg'})` }}
         className="absolute inset-0 z-0 bg-cover bg-center"
       />
       <div className="absolute inset-0 z-10 bg-[linear-gradient(180deg,rgba(0,0,0,0.4)_0%,rgba(0,0,0,0.6)_100%)]" />
@@ -31,7 +61,7 @@ export default function Hero() {
               Maquillaje artistico en vivo
             </motion.span>
 
-            <TextReveal text="Diseno de belleza con movimiento, luz y presencia" className="mx-auto mt-6 max-w-4xl text-5xl leading-[0.95] text-white md:text-7xl lg:mx-0" />
+            <TextReveal text={hero.title || 'Diseno de belleza con movimiento, luz y presencia'} className="mx-auto mt-6 max-w-4xl text-5xl leading-[0.95] text-white md:text-7xl lg:mx-0" />
 
             <motion.p
               initial={{ opacity: 0, y: 24 }}
@@ -39,7 +69,7 @@ export default function Hero() {
               transition={{ delay: 0.45, duration: 0.75 }}
               className="mx-auto mt-6 max-w-2xl text-sm text-white/90 md:text-lg lg:mx-0"
             >
-              Un fondo luminoso y delicado acompana cada look para mantener la portada viva sin ocultar la imagen principal.
+              {hero.description || 'Un fondo luminoso y delicado acompana cada look para mantener la portada viva sin ocultar la imagen principal.'}
             </motion.p>
 
             <motion.div

@@ -9,7 +9,6 @@ type GalleryItem = {
   id: string
   category: string
   title: string
-  description: string
   image_url: string
   sort_order: number
 }
@@ -76,12 +75,9 @@ export default function GallerySection() {
                   <button className="relative w-full overflow-hidden rounded-2xl" onClick={() => setSelected(item)}>
                     <img src={item.image_url} alt={item.title} loading="lazy" className="h-72 w-full rounded-2xl object-cover" />
                     <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/45 via-transparent to-transparent opacity-60 transition group-hover:opacity-80" />
-                    <div className="absolute bottom-3 left-3 right-3">
-                      <span className="inline-block rounded-full bg-white/90 px-3 py-1 text-xs font-medium [text-shadow:0_1px_0_rgba(120,61,90,0.28)]">
-                        {item.title}
-                      </span>
-                      <p className="mt-2 max-w-[22rem] text-sm text-white/90 drop-shadow-[0_2px_12px_rgba(0,0,0,0.35)]">{item.description}</p>
-                    </div>
+                    <span className="absolute bottom-3 left-3 rounded-full bg-white/90 px-3 py-1 text-xs font-medium [text-shadow:0_1px_0_rgba(120,61,90,0.28)]">
+                      {item.title}
+                    </span>
                   </button>
                 </FloatingCard>
               </motion.div>
@@ -95,12 +91,7 @@ export default function GallerySection() {
           <DialogHeader>
             <DialogTitle>{selected?.title}</DialogTitle>
           </DialogHeader>
-          {selected ? (
-            <div className="space-y-4">
-              <img src={selected.image_url} alt={selected.title} className="h-[70vh] w-full rounded-2xl object-cover" />
-              <p className="text-sm text-muted-foreground">{selected.description}</p>
-            </div>
-          ) : null}
+          {selected ? <img src={selected.image_url} alt={selected.title} className="h-[70vh] w-full rounded-2xl object-cover" /> : null}
         </DialogContent>
       </Dialog>
     </section>

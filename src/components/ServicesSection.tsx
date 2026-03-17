@@ -1,8 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
-import { Brush, Crown, Sparkles, Wand2 } from 'lucide-react'
-import type { LucideIcon } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import SparklesText from '@/components/effects/SparklesText'
+import { supabase } from '@/integrations/supabase/client'
 
 const heartImage = new URL('../assets/Heartwhite.png', import.meta.url).href
 
@@ -24,21 +23,18 @@ const heartPositions = [
   { top: '5%', left: '35%', size: '220px', opacity: '61' },
   { top: '85%', left: '65%', size: '240px', opacity: '64' },
 ]
-import { supabase } from '@/integrations/supabase/client'
 
-const iconMap: Record<string, LucideIcon> = {
-  Crown,
-  Sparkles,
-  Brush,
-  Wand2,
+type ServiceCategory = {
+  id: string
+  name: string
 }
 
 type Service = {
   id: string
-  icon: string
   name: string
-  description: string
+  category_id: string | null
   price: string
+  image_url: string
   sort_order: number
 }
 
@@ -49,13 +45,20 @@ const defaultServices: Service[] = [
 export default function ServicesSection() {
   const sectionRef = useRef<HTMLElement | null>(null)
   const [services, setServices] = useState<Service[]>(defaultServices)
+  const [categories, setCategories] = useState<ServiceCategory[]>([])
 
   useEffect(() => {
     const load = async () => {
       try {
-        const { data } = await supabase.from('services').select('*').order('sort_order')
-        if (data && data.length > 0) {
-          setServices(data as Service[])
+        const [{ data: servicesData }, { data: categoriesData }] = await Promise.all([
+          supabase.from('services').select('*').order('sort_order'),
+          supabase.from('service_categories').select('id, name').order('sort_order'),
+        ])
+        if (servicesData) {
+          setServices(servicesData as Service[])
+        }
+        if (categoriesData) {
+          setCategories(categoriesData as ServiceCategory[])
         }
       } catch {
         console.error('Error cargando servicios')
@@ -63,6 +66,8 @@ export default function ServicesSection() {
     }
     load()
   }, [])
+
+  const getCategoryName = (categoryId: string | null) => categories.find((category) => category.id === categoryId)?.name || 'Sin categoria'
 
   return (
     <section ref={sectionRef} id="servicios" className="section-padding relative overflow-hidden bg-gradient-light-pink animate-gradient-shift [perspective:1000px]">
@@ -90,7 +95,6 @@ export default function ServicesSection() {
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4 mt-12">
           <AnimatePresence mode="wait">
             {services.map((service, index) => {
-              const IconComponent = typeof service.icon === 'string' ? iconMap[service.icon] : null
               return (
                 <motion.div
                   key={service.id}
@@ -102,17 +106,9 @@ export default function ServicesSection() {
                   className="group relative flex flex-col items-center justify-center rounded-3xl border border-white/30 bg-white/70 p-6 text-center backdrop-blur-xl shadow-lg transition-all duration-300 hover:border-white/50 hover:bg-white/80"
                 >
                   <div className="absolute inset-0 rounded-3xl bg-[radial-gradient(circle_at_30%_30%,rgba(255,255,255,0.15)_0%,rgba(255,255,255,0)_70%)] opacity-0 transition-opacity group-hover:opacity-100" />
-                  
-                  <motion.div
-                    className="relative z-10"
-                    animate={{ y: [0, -6, 0] }}
-                    transition={{ duration: 3 + index * 0.5, repeat: Infinity, ease: 'easeInOut' }}
-                  >
-                    {IconComponent && <IconComponent className="mx-auto mb-4 h-8 w-8 text-foreground/70 transition group-hover:text-accent group-hover:scale-110" />}
-                  </motion.div>
-
+                  <img src={service.image_url} alt={service.name} className="relative z-10 mb-4 h-40 w-full rounded-2xl object-cover" />
                   <h3 className="relative z-10 text-lg font-semibold text-foreground">{service.name}</h3>
-                  <p className="relative z-10 mt-2 text-sm text-muted-foreground line-clamp-3">{service.description}</p>
+                  <p className="relative z-10 mt-2 text-sm text-muted-foreground">{getCategoryName(service.category_id)}</p>
                   <p className="relative z-10 mt-4 text-base font-bold text-accent">{service.price}</p>
                 </motion.div>
               )

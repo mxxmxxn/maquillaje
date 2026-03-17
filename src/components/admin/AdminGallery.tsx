@@ -4,7 +4,6 @@ import { motion } from 'framer-motion'
 import { supabase } from '@/integrations/supabase/client'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { Textarea } from '@/components/ui/textarea'
 import { toast } from '@/hooks/use-toast'
 import ImageUpload from '@/components/admin/ImageUpload'
 
@@ -18,11 +17,10 @@ type GalleryItem = {
   image_url: string
   category: string
   title: string
-  description: string
   sort_order: number
 }
 
-const initial: GalleryItem = { image_url: '', category: '', title: '', description: '', sort_order: 0 }
+const initial: GalleryItem = { image_url: '', category: '', title: '', sort_order: 0 }
 
 export default function AdminGallery() {
   const [items, setItems] = useState<GalleryItem[]>([])
@@ -61,7 +59,6 @@ export default function AdminGallery() {
       </div>
       <form onSubmit={save} className="space-y-4">
         <Input value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} placeholder="Titulo" />
-        <Textarea value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} placeholder="Descripción del trabajo" />
         <select
           value={form.category}
           onChange={(e) => setForm({ ...form, category: e.target.value })}
@@ -92,12 +89,9 @@ export default function AdminGallery() {
             >
               <img src={item.image_url} alt={item.title} className="h-48 w-full object-cover rounded-xl transition group-hover:scale-105" />
               <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent rounded-xl" />
-              <div className="absolute bottom-2 left-2 right-2">
-                <span className="text-xs font-medium text-white bg-white/20 px-2 py-1 rounded-full backdrop-blur-sm">
-                  {item.title}
-                </span>
-                <p className="mt-2 line-clamp-2 text-xs text-white/85">{item.description}</p>
-              </div>
+              <span className="absolute bottom-2 left-2 text-xs font-medium text-white bg-white/20 px-2 py-1 rounded-full backdrop-blur-sm">
+                {item.title}
+              </span>
             </motion.div>
           ))}
           {items.length === 0 && (
@@ -113,7 +107,7 @@ export default function AdminGallery() {
       <div className="space-y-2">
         {items.map((item) => (
           <div key={item.id} className="glass-card flex items-center justify-between p-3 text-sm">
-            <span>{item.title} - {item.category} - {item.description}</span>
+            <span>{item.title} - {item.category}</span>
             <Button
               variant="destructive"
               size="sm"

@@ -8,9 +8,7 @@ import { toast } from '@/hooks/use-toast'
 
 type AboutState = {
   id: string
-  paragraph_1: string
-  paragraph_2: string
-  paragraph_3: string
+  description: string
   stat_1_number: number
   stat_1_label: string
   stat_2_number: number
@@ -21,9 +19,7 @@ type AboutState = {
 
 const initial: AboutState = {
   id: 'default',
-  paragraph_1: '',
-  paragraph_2: '',
-  paragraph_3: '',
+  description: '',
   stat_1_number: 0,
   stat_1_label: '',
   stat_2_number: 0,
@@ -57,11 +53,9 @@ export default function AdminAbout() {
     <form onSubmit={save} className="space-y-4">
       <div>
         <h2 className="text-2xl font-semibold">Seccion Sobre mi</h2>
-        <p className="text-sm text-muted-foreground">Edita tu descripcion, foto y estadisticas destacadas.</p>
+        <p className="text-sm text-muted-foreground">Edita tu descripcion y estadisticas destacadas.</p>
       </div>
-      <Textarea value={form.paragraph_1} onChange={(e) => setForm({ ...form, paragraph_1: e.target.value })} placeholder="Descripción sobre ti" />
-      <Textarea value={form.paragraph_2} onChange={(e) => setForm({ ...form, paragraph_2: e.target.value })} placeholder="Descripción adicional" />
-      <Textarea value={form.paragraph_3} onChange={(e) => setForm({ ...form, paragraph_3: e.target.value })} placeholder="Descripción adicional 2" />
+      <Textarea value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} placeholder="Descripción sobre ti" />
       <div className="space-y-4">
         <div className="space-y-2">
           <label className="text-sm font-medium">Ej: Clientes felices</label>
