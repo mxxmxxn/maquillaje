@@ -94,7 +94,7 @@ export default function PhysicsOrbField() {
       ctx.clearRect(0, 0, w, h)
 
       const bg = ctx.createRadialGradient(w * 0.25, h * 0.2, 20, w * 0.25, h * 0.2, w * 0.8)
-      bg.addColorStop(0, 'rgba(248, 207, 221, 0.36)')
+      bg.addColorStop(0, 'rgba(251, 218, 229, 0.38)')
       bg.addColorStop(1, 'rgba(255, 255, 255, 0)')
       ctx.fillStyle = bg
       ctx.fillRect(0, 0, w, h)
@@ -163,8 +163,9 @@ export default function PhysicsOrbField() {
       for (let i = 0; i < orbs.length; i++) {
         const o = orbs[i]
         const g = ctx.createRadialGradient(o.x - o.r * 0.35, o.y - o.r * 0.35, o.r * 0.2, o.x, o.y, o.r)
-        g.addColorStop(0, 'rgba(255, 245, 249, 0.95)')
-        g.addColorStop(1, 'rgba(214, 111, 148, 0.3)')
+        g.addColorStop(0, 'rgba(251, 218, 229, 0.98)')
+        g.addColorStop(0.55, 'rgba(245, 199, 214, 0.78)')
+        g.addColorStop(1, 'rgba(220, 137, 165, 0.34)')
         ctx.fillStyle = g
         ctx.beginPath()
         ctx.arc(o.x, o.y, o.r, 0, Math.PI * 2)
@@ -173,7 +174,7 @@ export default function PhysicsOrbField() {
 
       for (let i = 0; i < ripples.length; i++) {
         const ripple = ripples[i]
-        ctx.strokeStyle = `rgba(214,111,148,${Math.min(ripple.strength, 0.4)})`
+        ctx.strokeStyle = `rgba(220,137,165,${Math.min(ripple.strength * 0.42, 0.42)})`
         ctx.lineWidth = 1.4
         ctx.beginPath()
         ctx.arc(ripple.x, ripple.y, ripple.radius, 0, Math.PI * 2)

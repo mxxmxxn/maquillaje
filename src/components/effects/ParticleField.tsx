@@ -1,179 +1,230 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useMemo, useRef } from 'react'
+import { Canvas, useFrame } from '@react-three/fiber'
+import * as THREE from 'three'
 
-export default function ParticleField() {
-  const canvasRef = useRef<HTMLCanvasElement | null>(null)
+const PARTICLE_COUNT = 120
+const OFFSCREEN_MOUSE = 10
 
-  useEffect(() => {
-    const canvas = canvasRef.current
-    if (!canvas) return
-    const ctx = canvas.getContext('2d')
-    if (!ctx) return
+const vertexShader = `
+  attribute float aSize;
+  attribute float aOpacity;
+  attribute float aPhase;
+  attribute float aPhaseSecondary;
+  attribute float aDrift;
+  attribute float aWander;
 
-    const particleCount = 170
-    const rand = (seed: number) => {
-      const x = Math.sin(seed * 128.321) * 43758.5453
-      return x - Math.floor(x)
+  uniform float uTime;
+  uniform vec2 uMouse;
+
+  varying float vAlpha;
+
+  void main() {
+    vec3 transformed = position;
+    float time = uTime * aDrift;
+
+    transformed.x += sin(time * 0.22 + aPhase) * aWander;
+    transformed.x += cos(time * 0.16 + aPhaseSecondary) * aWander * 0.45;
+    transformed.y += cos(time * 0.2 + aPhaseSecondary + position.x * 0.18) * aWander * 0.8;
+    transformed.y += sin(time * 0.14 + aPhase) * aWander * 0.35;
+    transformed.z += sin(time * 0.18 + aPhaseSecondary * 0.7) * 0.07;
+
+    vec2 toParticle = transformed.xy - uMouse;
+    float distanceToMouse = length(toParticle);
+    float repelStrength = smoothstep(1.45, 0.18, distanceToMouse);
+
+    if (distanceToMouse > 0.0001) {
+      transformed.xy += normalize(toParticle) * repelStrength * 0.22;
     }
 
-    const particles = Array.from({ length: particleCount }, (_, i) => {
-      const t = i + 1
-      return {
-        x: rand(t + 1) * window.innerWidth,
-        y: rand(t + 2) * window.innerHeight,
-        vx: (rand(t + 3) - 0.5) * 0.05,
-        vy: (rand(t + 4) - 0.5) * 0.05,
-        baseSize: 1.6 + rand(t + 5) * 3,
-        alpha: 0.15 + rand(t + 6) * 0.28,
-        driftPhase: rand(t + 7) * Math.PI * 2,
-        driftSpeed: 0.0018 + rand(t + 8) * 0.0038,
-        driftAmp: 0.025 + rand(t + 9) * 0.11,
-      }
-    })
+    vec4 mvPosition = modelViewMatrix * vec4(transformed, 1.0);
+    gl_Position = projectionMatrix * mvPosition;
+    gl_PointSize = aSize * (338.0 / -mvPosition.z);
 
-    const ripples: Array<{ x: number; y: number; r: number; alpha: number }> = []
-    const pointer = {
-      x: -9999,
-      y: -9999,
-      active: false,
-      attractUntil: 0,
+    float depthFade = smoothstep(7.5, 3.0, -mvPosition.z);
+    vAlpha = aOpacity * (1.08 + repelStrength * 0.1) * depthFade;
+  }
+`
+
+const fragmentShader = `
+  varying float vAlpha;
+
+  void main() {
+    float d = length(gl_PointCoord - vec2(0.5));
+
+    if (d > 0.5) {
+      discard;
     }
 
-    let raf = 0
-    let width = 0
-    let height = 0
-    let dpr = 1
+    float alpha = smoothstep(0.5, 0.1, d) * vAlpha;
 
-    const resize = () => {
-      width = canvas.clientWidth
-      height = canvas.clientHeight
-      dpr = Math.min(window.devicePixelRatio || 1, 1.5)
-      canvas.width = Math.floor(width * dpr)
-      canvas.height = Math.floor(height * dpr)
-      ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
-    }
+    gl_FragColor = vec4(0.88, 0.72, 0.78, alpha);
+  }
+`
 
-    const render = () => {
-      ctx.clearRect(0, 0, width, height)
+function BeautyParticles({ targetMouse, currentMouse }: { targetMouse: React.MutableRefObject<THREE.Vector2>; currentMouse: React.MutableRefObject<THREE.Vector2> }) {
+  const materialRef = useRef<THREE.ShaderMaterial | null>(null)
 
-      const now = performance.now()
-      const attractMode = now < pointer.attractUntil
+  const uniforms = useMemo(
+    () => ({
+      uTime: { value: 0 },
+      uMouse: { value: new THREE.Vector2(OFFSCREEN_MOUSE, OFFSCREEN_MOUSE) },
+    }),
+    [],
+  )
 
-      for (let i = 0; i < particles.length; i++) {
-        const p = particles[i]
+  const attributes = useMemo(() => {
+    const positions = new Float32Array(PARTICLE_COUNT * 3)
+    const sizes = new Float32Array(PARTICLE_COUNT)
+    const opacities = new Float32Array(PARTICLE_COUNT)
+    const phases = new Float32Array(PARTICLE_COUNT)
+    const secondaryPhases = new Float32Array(PARTICLE_COUNT)
+    const drifts = new Float32Array(PARTICLE_COUNT)
+    const wander = new Float32Array(PARTICLE_COUNT)
 
-        // Static floating motion with subtle local drift (no top-to-bottom fall).
-        p.vx += Math.sin(now * p.driftSpeed + p.driftPhase) * p.driftAmp * 0.02
-        p.vy += Math.cos(now * p.driftSpeed + p.driftPhase * 0.8) * p.driftAmp * 0.02
+    const sampleSpreadPosition = (placedCount: number) => {
+      for (let attempt = 0; attempt < 28; attempt += 1) {
+        const candidate = new THREE.Vector3(
+          THREE.MathUtils.randFloatSpread(9.4),
+          THREE.MathUtils.randFloatSpread(6.6),
+          THREE.MathUtils.randFloatSpread(3.1),
+        )
 
-        if (pointer.active) {
-          const dx = pointer.x - p.x
-          const dy = pointer.y - p.y
-          const dist = Math.hypot(dx, dy)
-          const radius = attractMode ? 240 : 190
+        let tooClose = false
 
-          if (dist < radius && dist > 0.001) {
-            const strength = (1 - dist / radius) * (attractMode ? 0.24 : -0.28)
-            p.vx += (dx / dist) * strength
-            p.vy += (dy / dist) * strength
+        for (let previousIndex = 0; previousIndex < placedCount; previousIndex += 1) {
+          const previousStride = previousIndex * 3
+
+          const dx = candidate.x - positions[previousStride]
+          const dy = candidate.y - positions[previousStride + 1]
+          const dz = (candidate.z - positions[previousStride + 2]) * 1.4
+
+          if (dx * dx + dy * dy + dz * dz < 0.72 * 0.72) {
+            tooClose = true
+            break
           }
         }
 
-        p.vx *= 0.992
-        p.vy *= 0.992
-        p.x += p.vx
-        p.y += p.vy
-
-        if (p.x < -20) p.x = width + 20
-        if (p.x > width + 20) p.x = -20
-        if (p.y < -20) p.y = height + 20
-        if (p.y > height + 20) p.y = -20
-
-        if (pointer.active) {
-          const shimmer = Math.sin((now * 0.0025) + i * 0.7) * 0.5 + 0.5
-          const size = p.baseSize + shimmer * 0.9
-          const glow = 18 + shimmer * 12
-          ctx.beginPath()
-          ctx.shadowBlur = glow
-          ctx.shadowColor = 'rgba(214,111,148,0.5)'
-          ctx.fillStyle = `rgba(231,150,182,${p.alpha})`
-          ctx.arc(p.x, p.y, size, 0, Math.PI * 2)
-          ctx.fill()
-          ctx.shadowBlur = 0
-        } else {
-          const gradient = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.baseSize * 2.6)
-          gradient.addColorStop(0, `rgba(223,123,163,${Math.min(0.4, p.alpha + 0.1)})`)
-          gradient.addColorStop(1, 'rgba(223,123,163,0)')
-
-          ctx.beginPath()
-          ctx.fillStyle = gradient
-          ctx.arc(p.x, p.y, p.baseSize * 2.6, 0, Math.PI * 2)
-          ctx.fill()
-
-          ctx.beginPath()
-          ctx.fillStyle = `rgba(231,150,182,${p.alpha})`
-          ctx.arc(p.x, p.y, p.baseSize, 0, Math.PI * 2)
-          ctx.fill()
+        if (!tooClose) {
+          return candidate
         }
       }
 
-      for (let i = ripples.length - 1; i >= 0; i--) {
-        const ripple = ripples[i]
-        ripple.r += 2.8
-        ripple.alpha -= 0.012
-        if (ripple.alpha <= 0) {
-          ripples.splice(i, 1)
-          continue
-        }
-        ctx.beginPath()
-        ctx.strokeStyle = `rgba(255,245,250,${ripple.alpha.toFixed(3)})`
-        ctx.lineWidth = 1.5
-        ctx.arc(ripple.x, ripple.y, ripple.r, 0, Math.PI * 2)
-        ctx.stroke()
+      return new THREE.Vector3(
+        THREE.MathUtils.randFloatSpread(9.4),
+        THREE.MathUtils.randFloatSpread(6.6),
+        THREE.MathUtils.randFloatSpread(3.1),
+      )
+    }
+
+    for (let index = 0; index < PARTICLE_COUNT; index += 1) {
+      const stride = index * 3
+      const position = sampleSpreadPosition(index)
+
+      positions[stride] = position.x
+      positions[stride + 1] = position.y
+      positions[stride + 2] = position.z
+      sizes[index] = THREE.MathUtils.randFloat(1, 5)
+      opacities[index] = THREE.MathUtils.randFloat(0.1, 0.6)
+      phases[index] = THREE.MathUtils.randFloat(0, Math.PI * 2)
+      secondaryPhases[index] = THREE.MathUtils.randFloat(0, Math.PI * 2)
+      drifts[index] = THREE.MathUtils.randFloat(0.65, 1)
+      wander[index] = THREE.MathUtils.randFloat(0.24, 0.56)
+    }
+
+    return { positions, sizes, opacities, phases, secondaryPhases, drifts, wander }
+  }, [])
+
+  useFrame(({ clock, viewport }) => {
+    currentMouse.current.lerp(targetMouse.current, 0.08)
+
+    if (!materialRef.current) {
+      return
+    }
+
+    materialRef.current.uniforms.uTime.value = clock.getElapsedTime()
+    materialRef.current.uniforms.uMouse.value.set(
+      currentMouse.current.x * viewport.width * 0.5,
+      currentMouse.current.y * viewport.height * 0.5,
+    )
+  })
+
+  return (
+    <points frustumCulled={false}>
+      <bufferGeometry>
+        <bufferAttribute attach="attributes-position" args={[attributes.positions, 3]} />
+        <bufferAttribute attach="attributes-aSize" args={[attributes.sizes, 1]} />
+        <bufferAttribute attach="attributes-aOpacity" args={[attributes.opacities, 1]} />
+        <bufferAttribute attach="attributes-aPhase" args={[attributes.phases, 1]} />
+        <bufferAttribute attach="attributes-aPhaseSecondary" args={[attributes.secondaryPhases, 1]} />
+        <bufferAttribute attach="attributes-aDrift" args={[attributes.drifts, 1]} />
+        <bufferAttribute attach="attributes-aWander" args={[attributes.wander, 1]} />
+      </bufferGeometry>
+      <shaderMaterial
+        ref={materialRef}
+        uniforms={uniforms}
+        vertexShader={vertexShader}
+        fragmentShader={fragmentShader}
+        transparent
+        depthWrite={false}
+        depthTest={false}
+        blending={THREE.AdditiveBlending}
+      />
+    </points>
+  )
+}
+
+export default function ParticleField() {
+  const containerRef = useRef<HTMLDivElement | null>(null)
+  const targetMouse = useRef(new THREE.Vector2(OFFSCREEN_MOUSE, OFFSCREEN_MOUSE))
+  const currentMouse = useRef(new THREE.Vector2(OFFSCREEN_MOUSE, OFFSCREEN_MOUSE))
+
+  useEffect(() => {
+    const handlePointerMove = (event: PointerEvent) => {
+      const rect = containerRef.current?.getBoundingClientRect()
+
+      if (!rect) {
+        return
       }
 
-      raf = requestAnimationFrame(render)
+      const inside =
+        event.clientX >= rect.left &&
+        event.clientX <= rect.right &&
+        event.clientY >= rect.top &&
+        event.clientY <= rect.bottom
+
+      if (!inside) {
+        targetMouse.current.set(OFFSCREEN_MOUSE, OFFSCREEN_MOUSE)
+        return
+      }
+
+      const x = ((event.clientX - rect.left) / rect.width) * 2 - 1
+      const y = -(((event.clientY - rect.top) / rect.height) * 2 - 1)
+      targetMouse.current.set(x, y)
     }
 
-    const onMove = (event: MouseEvent) => {
-      const rect = canvas.getBoundingClientRect()
-      pointer.x = event.clientX - rect.left
-      pointer.y = event.clientY - rect.top
-      pointer.active = true
+    const resetPointer = () => {
+      targetMouse.current.set(OFFSCREEN_MOUSE, OFFSCREEN_MOUSE)
     }
 
-    const onDown = (event: PointerEvent) => {
-      const rect = canvas.getBoundingClientRect()
-      const x = event.clientX - rect.left
-      const y = event.clientY - rect.top
-      pointer.x = x
-      pointer.y = y
-      pointer.active = true
-      pointer.attractUntil = performance.now() + 1200
-      ripples.push({ x, y, r: 8, alpha: 0.45 })
-    }
-
-    const onLeave = () => {
-      pointer.active = false
-      pointer.x = -9999
-      pointer.y = -9999
-    }
-
-    resize()
-    render()
-
-    window.addEventListener('resize', resize)
-    window.addEventListener('mousemove', onMove)
-    window.addEventListener('pointerdown', onDown)
-    window.addEventListener('mouseleave', onLeave)
+    window.addEventListener('pointermove', handlePointerMove, { passive: true })
+    window.addEventListener('pointerleave', resetPointer)
 
     return () => {
-      cancelAnimationFrame(raf)
-      window.removeEventListener('resize', resize)
-      window.removeEventListener('mousemove', onMove)
-      window.removeEventListener('pointerdown', onDown)
-      window.removeEventListener('mouseleave', onLeave)
+      window.removeEventListener('pointermove', handlePointerMove)
+      window.removeEventListener('pointerleave', resetPointer)
     }
   }, [])
 
-  return <canvas ref={canvasRef} className="pointer-events-none absolute inset-0 z-20 h-full w-full" style={{ display: 'block' }} aria-hidden="true" />
+  return (
+    <div ref={containerRef} className="pointer-events-none absolute inset-0 z-20">
+      <Canvas
+        dpr={[1, 1.5]}
+        camera={{ position: [0, 0, 5], fov: 60 }}
+        gl={{ alpha: true, antialias: false, powerPreference: 'high-performance' }}
+        className="h-full w-full"
+      >
+        <BeautyParticles targetMouse={targetMouse} currentMouse={currentMouse} />
+      </Canvas>
+    </div>
+  )
 }

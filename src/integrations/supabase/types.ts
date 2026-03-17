@@ -34,6 +34,7 @@ export interface Database {
         image_url: string
         category: string
         title: string
+        description: string
         sort_order: number
       }>
       services: PublicRow<{
@@ -42,6 +43,7 @@ export interface Database {
         description: string
         price: string
         icon: string
+        category_id: string | null
         sort_order: number
       }>
       testimonials: PublicRow<{

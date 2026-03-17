@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { motion, useMotionTemplate, useMotionValue, useScroll, useSpring, useTransform } from 'framer-motion'
 import { supabase } from '@/integrations/supabase/client'
 import CountUp from '@/components/effects/CountUp'
-import ScrollReveal from '@/components/effects/ScrollReveal'
+import SparklesText from '@/components/effects/SparklesText'
 import SmoothReveal from '@/components/effects/SmoothReveal'
 
 const winkImage = new URL('../assets/Winkblack.png', import.meta.url).href
@@ -10,6 +10,7 @@ const winkImage = new URL('../assets/Winkblack.png', import.meta.url).href
 type AboutData = {
   paragraph_1: string
   paragraph_2: string
+  paragraph_3: string
   stat_1_number: number
   stat_1_label: string
   stat_2_number: number
@@ -19,14 +20,15 @@ type AboutData = {
 }
 
 const defaultAbout: AboutData = {
-  paragraph_1: 'Soy maquilladora profesional especializada en piel real y acabados elegantes. Cada look se adapta a tu estilo y evento.',
-  paragraph_2: 'Trabajo con tecnicas actuales, productos premium y una experiencia cercana para que disfrutes el proceso desde el primer minuto.',
-  stat_1_number: 180,
-  stat_1_label: 'Clientes felices',
-  stat_2_number: 8,
-  stat_2_label: 'Anios de experiencia',
-  stat_3_number: 35,
-  stat_3_label: 'Cursos certificados',
+  paragraph_1: '',
+  paragraph_2: '',
+  paragraph_3: '',
+  stat_1_number: 0,
+  stat_1_label: '',
+  stat_2_number: 0,
+  stat_2_label: '',
+  stat_3_number: 0,
+  stat_3_label: '',
 }
 
 export default function AboutSection() {
@@ -37,13 +39,8 @@ export default function AboutSection() {
   const spotlight = useMotionTemplate`radial-gradient(420px circle at ${glowX}% ${glowY}%, rgba(244,191,210,0.22), transparent 62%)`
   const { scrollYProgress } = useScroll({ target: sectionRef, offset: ['start 85%', 'end 20%'] })
   const progress = useSpring(scrollYProgress, { damping: 26, stiffness: 120 })
-  const titleY = useTransform(progress, [0, 1], [56, -10])
-  const titleRotateX = useTransform(progress, [0, 1], [16, 0])
-  const titleScale = useTransform(progress, [0, 1], [0.92, 1.04])
   const bodyY = useTransform(progress, [0, 1], [34, 0])
   const bodyYSoft = useTransform(bodyY, (v) => v * 0.8)
-  const depthShadow = useTransform(progress, [0, 1], [0, 1])
-  const titleShadow = useMotionTemplate`0 ${depthShadow}px 0 rgba(177,95,132,0.34), 0 ${depthShadow}0px 30px rgba(177,95,132,0.24)`
 
   useEffect(() => {
     const load = async () => {
@@ -79,19 +76,15 @@ export default function AboutSection() {
       <motion.div style={{ background: spotlight }} className="pointer-events-none absolute inset-0" />
       <div className="container grid items-center gap-12 lg:grid-cols-2 relative z-10">
         <SmoothReveal direction="left">
-          <ScrollReveal>
-            <motion.h2
-              style={{ y: titleY, rotateX: titleRotateX, scale: titleScale, textShadow: titleShadow }}
-              className="section-title will-change-transform"
-            >
-              Sobre mi
-            </motion.h2>
-          </ScrollReveal>
+          <SparklesText as="h2" text="Sobre mi" className="section-title" sparklesCount={9} colors={{ first: '#f5c7d6', second: '#dc89a5' }} />
           <motion.p style={{ y: bodyY }} className="mb-4 text-muted-foreground will-change-transform">
             {about.paragraph_1}
           </motion.p>
           <motion.p style={{ y: bodyYSoft }} className="mb-6 text-muted-foreground will-change-transform">
             {about.paragraph_2}
+          </motion.p>
+          <motion.p style={{ y: bodyYSoft }} className="mb-6 text-muted-foreground will-change-transform">
+            {about.paragraph_3}
           </motion.p>
 
           <div className="grid gap-4 sm:grid-cols-3">

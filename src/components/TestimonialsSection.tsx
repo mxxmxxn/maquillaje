@@ -1,7 +1,7 @@
 import { Star } from 'lucide-react'
 import { motion } from 'framer-motion'
 import FloatingCard from '@/components/effects/FloatingCard'
-import ScrollReveal from '@/components/effects/ScrollReveal'
+import SparklesText from '@/components/effects/SparklesText'
 
 const testimonials = [
   { name: 'Andrea', text: 'Increible resultado, duracion perfecta toda la noche.', service: 'Social Glam', rating: 5 },
@@ -22,9 +22,7 @@ export default function TestimonialsSection() {
   return (
     <section id="testimonios" className="section-padding bg-secondary/50">
       <div className="container">
-        <ScrollReveal>
-          <h2 className="section-title">Testimonios</h2>
-        </ScrollReveal>
+        <SparklesText as="h2" text="Testimonios" className="section-title" sparklesCount={9} colors={{ first: '#f5c7d6', second: '#dc89a5' }} />
         <p className="mb-6 max-w-2xl text-muted-foreground">Resenas reales en movimiento lateral. Pasa el raton encima para leer con calma.</p>
 
         <div className="group relative overflow-hidden [mask-image:linear-gradient(to_right,transparent,black_12%,black_88%,transparent)]">

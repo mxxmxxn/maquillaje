@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { Brush, Crown, Sparkles, Wand2 } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
+import SparklesText from '@/components/effects/SparklesText'
 
 const heartImage = new URL('../assets/Heartwhite.png', import.meta.url).href
 
@@ -24,7 +25,6 @@ const heartPositions = [
   { top: '85%', left: '65%', size: '240px', opacity: '64' },
 ]
 import { supabase } from '@/integrations/supabase/client'
-import ScrollReveal from '@/components/effects/ScrollReveal'
 
 const iconMap: Record<string, LucideIcon> = {
   Crown,
@@ -43,38 +43,7 @@ type Service = {
 }
 
 const defaultServices: Service[] = [
-  {
-    id: '1',
-    sort_order: 0,
-    icon: 'Crown',
-    name: 'Novias',
-    description: 'Prueba + dia de boda',
-    price: '$120',
-  },
-  {
-    id: '2',
-    sort_order: 1,
-    icon: 'Sparkles',
-    name: 'Social Glam',
-    description: 'Eventos y fiestas',
-    price: '$55',
-  },
-  {
-    id: '3',
-    sort_order: 2,
-    icon: 'Brush',
-    name: 'Editorial',
-    description: 'Produccion y sesiones',
-    price: '$95',
-  },
-  {
-    id: '4',
-    sort_order: 3,
-    icon: 'Wand2',
-    name: 'Automaquillaje',
-    description: 'Clase personalizada',
-    price: '$70',
-  },
+  
 ]
 
 export default function ServicesSection() {
@@ -116,9 +85,7 @@ export default function ServicesSection() {
         </div>
       ))}
       <div className="container relative">
-        <ScrollReveal>
-          <h2 className="section-title">Servicios</h2>
-        </ScrollReveal>
+        <SparklesText as="h2" text="Servicios" className="section-title" sparklesCount={9} colors={{ first: '#f5c7d6', second: '#dc89a5' }} />
 
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4 mt-12">
           <AnimatePresence mode="wait">
@@ -145,7 +112,7 @@ export default function ServicesSection() {
                   </motion.div>
 
                   <h3 className="relative z-10 text-lg font-semibold text-foreground">{service.name}</h3>
-                  <p className="relative z-10 mt-2 text-sm text-muted-foreground line-clamp-2">{service.description}</p>
+                  <p className="relative z-10 mt-2 text-sm text-muted-foreground line-clamp-3">{service.description}</p>
                   <p className="relative z-10 mt-4 text-base font-bold text-accent">{service.price}</p>
                 </motion.div>
               )

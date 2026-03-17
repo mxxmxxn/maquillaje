@@ -1,13 +1,15 @@
 import { Heart, Instagram, MessageCircle, Music2 } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import MagneticButton from '@/components/effects/MagneticButton'
+import { Boxes } from '@/components/effects/Boxes'
 
 export default function Footer() {
   const navigate = useNavigate()
 
   return (
-    <footer className="section-padding bg-foreground text-white">
-      <div className="container grid gap-10 md:grid-cols-3">
+    <footer className="section-padding bg-foreground text-white relative overflow-hidden">
+      <Boxes className="opacity-40" />
+      <div className="container grid gap-10 md:grid-cols-3 relative z-10">
         <div>
           <button
             onClick={() => navigate('/admin')}
@@ -39,7 +41,7 @@ export default function Footer() {
         </div>
       </div>
 
-      <p className="container mt-10 flex items-center gap-2 text-xs text-white/60">
+      <p className="container mt-10 flex items-center gap-2 text-xs text-white/60 relative z-10">
         Hecho con <Heart className="h-3 w-3 animate-pulse text-pink-300" /> {new Date().getFullYear()}.
       </p>
     </footer>

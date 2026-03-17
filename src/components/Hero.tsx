@@ -1,5 +1,4 @@
-import { motion, useMotionValue, useScroll, useSpring, useTransform } from 'framer-motion'
-import { useEffect } from 'react'
+import { motion, useScroll, useTransform } from 'framer-motion'
 import { ArrowDown } from 'lucide-react'
 import MagneticButton from '@/components/effects/MagneticButton'
 import ParticleField from '@/components/effects/ParticleField'
@@ -10,39 +9,15 @@ export default function Hero() {
   const y = useTransform(scrollY, [0, 900], [0, 240])
   const scale = useTransform(scrollY, [0, 900], [1, 1.14])
   const contentOpacity = useTransform(scrollY, [0, 550], [1, 0])
-  const mx = useMotionValue(0)
-  const my = useMotionValue(0)
-  const sx = useSpring(mx, { stiffness: 120, damping: 20 })
-  const sy = useSpring(my, { stiffness: 120, damping: 20 })
-
-  useEffect(() => {
-    const onMove = (event: MouseEvent) => {
-      const nx = event.clientX / window.innerWidth - 0.5
-      const ny = event.clientY / window.innerHeight - 0.5
-      mx.set(nx * 52)
-      my.set(ny * 36)
-    }
-    window.addEventListener('mousemove', onMove)
-    return () => window.removeEventListener('mousemove', onMove)
-  }, [mx, my])
 
   return (
     <section id="inicio" className="relative isolate flex min-h-screen items-center overflow-hidden pt-20">
       <motion.div
         style={{ y, scale, backgroundImage: 'url(/imagen_maquillaje.jpg)' }}
-        className="absolute inset-0 z-0 bg-cover bg-center opacity-55"
+        className="absolute inset-0 z-0 bg-cover bg-center"
       />
-      <div className="absolute inset-0 z-10 bg-[linear-gradient(110deg,rgba(10,9,11,0.72)_0%,rgba(24,16,24,0.56)_46%,rgba(245,231,238,0.18)_100%)]" />
+      <div className="absolute inset-0 z-10 bg-[linear-gradient(180deg,rgba(0,0,0,0.4)_0%,rgba(0,0,0,0.6)_100%)]" />
       <ParticleField />
-
-      <motion.div
-        style={{ x: sx, y: sy }}
-        className="pointer-events-none absolute -left-24 top-16 z-20 h-72 w-72 rounded-full bg-[radial-gradient(circle,rgba(255,175,204,0.62)_0%,rgba(255,255,255,0)_70%)]"
-      />
-      <motion.div
-        style={{ x: useTransform(sx, (v) => -v * 0.55), y: useTransform(sy, (v) => -v * 0.45) }}
-        className="pointer-events-none absolute -bottom-12 right-0 z-20 h-80 w-80 rounded-full bg-[radial-gradient(circle,rgba(239,197,216,0.42)_0%,rgba(255,255,255,0)_70%)]"
-      />
 
       <motion.div style={{ opacity: contentOpacity }} className="container relative z-30">
         <div className="grid items-center gap-10 lg:grid-cols-[1.1fr,0.9fr]">
@@ -64,7 +39,7 @@ export default function Hero() {
               transition={{ delay: 0.45, duration: 0.75 }}
               className="mx-auto mt-6 max-w-2xl text-sm text-white/90 md:text-lg lg:mx-0"
             >
-              Mueve el cursor para empujar las particulas. Haz click para activar una onda de atraccion y sentir una escena viva en tiempo real.
+              Un fondo luminoso y delicado acompana cada look para mantener la portada viva sin ocultar la imagen principal.
             </motion.p>
 
             <motion.div
@@ -93,7 +68,6 @@ export default function Hero() {
             initial={{ opacity: 0, x: 24, y: 20 }}
             animate={{ opacity: 1, x: 0, y: 0 }}
             transition={{ delay: 0.35, duration: 0.85 }}
-            style={{ x: useTransform(sx, (v) => v * 0.22), y: useTransform(sy, (v) => v * 0.12) }}
             className="hidden lg:block mx-auto w-full max-w-md rounded-3xl border border-white/35 bg-black/28 p-6 text-white shadow-elevated backdrop-blur-xl"
           >
             <p className="text-xs uppercase tracking-[0.16em] text-white/75">Servicio destacado</p>

@@ -55,7 +55,7 @@
   }
 
   .gradient-pink {
-    background: linear-gradient(140deg, hsl(var(--primary)), hsl(var(--accent)) 55%, hsl(var(--pink-deep)));
+    background: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--pink-glow)));
   }
 
   .gradient-hero {

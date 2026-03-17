@@ -6,6 +6,7 @@ import { supabase } from '@/integrations/supabase/client'
 import FloatingCard from '@/components/effects/FloatingCard'
 import MagneticButton from '@/components/effects/MagneticButton'
 import ScrollReveal from '@/components/effects/ScrollReveal'
+import SparklesText from '@/components/effects/SparklesText'
 import SmoothReveal from '@/components/effects/SmoothReveal'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
@@ -77,7 +78,7 @@ export default function ContactSection() {
       <div className="container relative z-10 grid gap-10 lg:grid-cols-2">
         <ScrollReveal>
           <div>
-            <h2 className="section-title">Contacto</h2>
+            <SparklesText as="h2" text="Contacto" className="section-title" sparklesCount={9} colors={{ first: '#f5c7d6', second: '#dc89a5' }} />
             <p className="mb-6 max-w-md text-muted-foreground">{contact.description}</p>
             <div className="flex gap-3">
               {contact.instagram_url && (

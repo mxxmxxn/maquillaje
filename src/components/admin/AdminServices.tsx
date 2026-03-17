@@ -4,6 +4,7 @@ import { motion } from 'framer-motion'
 import { supabase } from '@/integrations/supabase/client'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { Textarea } from '@/components/ui/textarea'
 import { toast } from '@/hooks/use-toast'
 
 type ServiceCategory = {
@@ -15,6 +16,7 @@ type Service = {
   id?: string
   icon: string
   name: string
+  description: string
   category_id: string | null
   price: string
   sort_order: number
@@ -22,7 +24,7 @@ type Service = {
 
 const ICON_OPTIONS = ['Crown', 'Sparkles', 'Brush', 'Wand2', 'Star', 'Heart', 'Gem', 'Palette']
 
-const initial: Service = { icon: 'Sparkles', name: '', category_id: null, price: '', sort_order: 0 }
+const initial: Service = { icon: 'Sparkles', name: '', description: '', category_id: null, price: '', sort_order: 0 }
 
 export default function AdminServices() {
   const [items, setItems] = useState<Service[]>([])
@@ -88,6 +90,7 @@ export default function AdminServices() {
           ))}
         </select>
         <Input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} placeholder="Tipo de servicio" />
+        <Textarea value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} placeholder="Descripción del servicio" />
         <Input value={form.price} onChange={(e) => setForm({ ...form, price: e.target.value })} placeholder="Precio" />
         <Button type="submit" variant="pink">Guardar servicio</Button>
       </form>
@@ -106,6 +109,7 @@ export default function AdminServices() {
               className="flex flex-col items-center justify-center rounded-full border border-white/24 bg-gradient-to-b from-white/10 to-white/5 p-4 text-center backdrop-blur-md"
             >
               <h4 className="text-sm font-semibold">{item.name}</h4>
+              <p className="mt-2 text-xs text-muted-foreground line-clamp-3">{item.description}</p>
               <p className="text-xs text-muted-foreground mt-1">{getCategoryName(item.category_id)}</p>
               <p className="mt-2 text-sm font-semibold text-accent">{item.price}</p>
             </motion.div>
@@ -123,7 +127,7 @@ export default function AdminServices() {
       <div className="space-y-2">
         {items.map((item) => (
           <div key={item.id} className="glass-card flex items-center justify-between p-3 text-sm">
-            <span>{item.name} - {item.price}</span>
+            <span>{item.name} - {item.price} - {item.description}</span>
             <Button
               variant="destructive"
               size="sm"
